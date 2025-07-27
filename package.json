@@ -1,0 +1,21 @@
+{
+  "name": "study-materials-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx tsc && node dist/index.js",
+    "watch": "npx onchange -i -k \"**/*.ts\" -- npm run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "zod": "^4.0.8"
+  }
+}
