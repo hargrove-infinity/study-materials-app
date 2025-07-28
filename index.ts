@@ -348,20 +348,22 @@ app.put(
 
       const { categoryIds, ...restParsedBody } = parsedBody;
 
-      const updatedMaterials = db.materials.map((material) => {
-        if (material.id === id) {
-          const updatedMaterial: Material = {
-            ...material,
-            ...restParsedBody,
-            updatedAt: Date.now(),
-          };
+      let key: keyof Omit<MaterialUpdate, "categoryIds">;
 
-          return updatedMaterial;
+      for (key in restParsedBody) {
+        const value = restParsedBody[key];
+        if (!value) {
+          continue;
         }
-        return material;
-      });
 
-      db.materials = updatedMaterials;
+        if (key === "url") {
+          foundMaterial[key] = value;
+        }
+
+        foundMaterial[key] = value as MaterialTypeEnum;
+      }
+
+      foundMaterial.updatedAt = Date.now();
 
       if (categoryIds) {
         const materialCategoriesNotCurrentMaterial =
