@@ -184,20 +184,18 @@ app.put(
         return;
       }
 
-      const updatedCategories = db.categories.map((category) => {
-        if (category.id === id) {
-          const updatedCategory: Category = {
-            ...category,
-            ...parsedBody,
-            updatedAt: Date.now(),
-          };
-          return updatedCategory;
+      let key: keyof CategoryUpdate;
+
+      for (key in parsedBody) {
+        const value = parsedBody[key];
+        if (!value) {
+          continue;
         }
+        foundCategory[key] = value;
+      }
 
-        return category;
-      });
+      foundCategory.updatedAt = Date.now();
 
-      db.categories = updatedCategories;
       console.log("PUT /categories/{id} DB:", db);
       res.send("Category updated successfully");
     } catch (error) {
