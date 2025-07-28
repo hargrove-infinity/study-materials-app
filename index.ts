@@ -141,8 +141,7 @@ app.post("/categories", (req: Request<{}, {}, CategoryDef, {}>, res) => {
 // Get all categories
 app.get("/categories", (req, res) => {
   try {
-    const categories: Category[] = db.categories;
-    res.send(categories);
+    res.send(db.categories);
   } catch (error) {
     console.log(error);
     res.send("Error in get all categories");
