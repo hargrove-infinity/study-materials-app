@@ -144,7 +144,7 @@ app.get("/categories", (req, res) => {
     res.send(db.categories);
   } catch (error) {
     console.log(error);
-    res.send("Error in get all categories");
+    res.status(500).send("Error in get all categories");
   }
 });
 
@@ -159,10 +159,10 @@ app.get("/categories/:id", (req, res) => {
       return;
     }
 
-    res.send(`Category with provided ${id} is not found`);
+    res.status(404).send(`Category with provided ${id} is not found`);
   } catch (error) {
     console.log(error);
-    res.send("Error in get one category");
+    res.status(500).send("Error in get one category");
   }
 });
 
@@ -180,7 +180,7 @@ app.put(
       );
 
       if (!foundCategory) {
-        res.send(`Category with provided ${id} is not found`);
+        res.status(404).send(`Category with provided ${id} is not found`);
         return;
       }
 
@@ -202,7 +202,7 @@ app.put(
       res.send("Category updated successfully");
     } catch (error) {
       console.log(error);
-      res.send("Error in update one category");
+      res.status(500).send("Error in update one category");
     }
   }
 );
@@ -215,7 +215,7 @@ app.delete("/categories/:id", (req, res) => {
     const foundCategory = db.categories.find((category) => category.id === id);
 
     if (!foundCategory) {
-      res.send(`Category with provided ${id} is not found`);
+      res.status(404).send(`Category with provided ${id} is not found`);
       return;
     }
 
@@ -242,7 +242,7 @@ app.delete("/categories/:id", (req, res) => {
     res.send("Category deleted successfully");
   } catch (error) {
     console.log(error);
-    res.send("Error in delete one category");
+    res.status(500).send("Error in delete one category");
   }
 });
 
@@ -291,7 +291,7 @@ app.get("/materials", (req, res) => {
     res.send(materials);
   } catch (error) {
     console.log(error);
-    res.send("Error in get all materials");
+    res.status(500).send("Error in get all materials");
   }
 });
 
@@ -306,10 +306,10 @@ app.get("/materials/:id", (req, res) => {
       return;
     }
 
-    res.send(`Material with provided ${id} is not found`);
+    res.status(404).send(`Material with provided ${id} is not found`);
   } catch (error) {
     console.log(error);
-    res.send("Error in get one material");
+    res.status(500).send("Error in get one material");
   }
 });
 
@@ -329,7 +329,7 @@ app.get("/materials/category/:categoryId", (req, res) => {
     res.send(filteredMaterials);
   } catch (error) {
     console.log(error);
-    res.send("Error in get one material by category");
+    res.status(500).send("Error in get one material by category");
   }
 });
 
@@ -384,7 +384,7 @@ app.put(
       res.send("Material updated successfully");
     } catch (error) {
       console.log(error);
-      res.send("Error in update material");
+      res.status(500).send("Error in update material");
     }
   }
 );
@@ -417,7 +417,7 @@ app.delete("/materials/:id", (req, res) => {
     res.send("Material deleted successfully");
   } catch (error) {
     console.log(error);
-    res.send("Error in delete material");
+    res.status(500).send("Error in delete material");
   }
 });
 
