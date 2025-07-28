@@ -337,8 +337,14 @@ app.put(
     try {
       const body: unknown = req.body;
       const { id } = req.params;
-
       const parsedBody = materialUpdateSchema.parse(body);
+
+      const foundMaterial = db.materials.find((material) => material.id === id);
+
+      if (!foundMaterial) {
+        res.status(404).send(`Material with provided ${id} is not found`);
+        return;
+      }
 
       const { categoryIds, ...restParsedBody } = parsedBody;
 
