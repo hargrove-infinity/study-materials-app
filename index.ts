@@ -13,6 +13,9 @@ enum MaterialTypeEnum {
 
 /* SCHEMAS */
 
+// MaterialType
+const materialTypeSchema = z.enum(MaterialTypeEnum);
+
 // Categories
 
 // Category request body
@@ -39,7 +42,7 @@ const categoryUpdateSchema = z.object({
 // Material base schema
 const materialBaseSchema = z.object({
   url: z.url(),
-  type: z.enum(MaterialTypeEnum),
+  type: materialTypeSchema,
 });
 
 // Material request body
@@ -57,7 +60,7 @@ const materialSchema = materialBaseSchema.extend({
 // Material request body for put
 const materialUpdateSchema = z.object({
   url: z.url().optional(),
-  type: z.enum(MaterialTypeEnum).optional(),
+  type: materialTypeSchema.optional(),
   categoryIds: z.string().array().optional(),
 });
 
