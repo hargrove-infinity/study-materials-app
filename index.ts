@@ -287,8 +287,7 @@ app.post("/materials", (req: Request<{}, {}, MaterialDef, {}>, res) => {
 // Get all materials
 app.get("/materials", (req, res) => {
   try {
-    const materials = db.materials;
-    res.send(materials);
+    res.send(db.materials);
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in get all materials");
