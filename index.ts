@@ -66,7 +66,7 @@ const materialUpdateSchema = z.object({
 
 // MaterialCategory
 const materialCategorySchema = z.object({
-  categoryId: z.string().nullable(),
+  categoryId: z.string(),
   materialId: z.string(),
 });
 
@@ -223,14 +223,8 @@ app.delete("/categories/:id", (req, res) => {
 
     db.categories = updatedCategories;
 
-    const updatedMaterialCategories = db.materialCategories.map(
-      (materialCategory) => {
-        if (materialCategory.categoryId === id) {
-          return { ...materialCategory, categoryId: null };
-        }
-
-        return materialCategory;
-      }
+    const updatedMaterialCategories = db.materialCategories.filter(
+      (materialCategory) => materialCategory.categoryId !== id
     );
 
     db.materialCategories = updatedMaterialCategories;
