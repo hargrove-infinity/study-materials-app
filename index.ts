@@ -208,32 +208,23 @@ app.put(
 );
 
 // Delete one category
-app.delete("/categories/:id", (req, res) => {
+app.delete("/categories/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const foundCategory = db.categories.find((category) => category.id === id);
+    const result = await drizzle
+      .delete(categoryTable)
+      .where(eq(categoryTable.id, id))
+      .returning();
 
-    if (!foundCategory) {
+    const category = result[0];
+
+    if (!category) {
       res.status(404).send(`Category with provided ${id} is not found`);
       return;
     }
 
-    const updatedCategories = db.categories.filter(
-      (category) => category.id !== id
-    );
-
-    db.categories = updatedCategories;
-
-    const updatedMaterialCategories = db.materialCategories.filter(
-      (materialCategory) => materialCategory.categoryId !== id
-    );
-
-    db.materialCategories = updatedMaterialCategories;
-
-    console.log("DELETE /categories/{id} DB:", db);
-
-    res.send("Category deleted successfully");
+    res.send(category);
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in delete one category");
