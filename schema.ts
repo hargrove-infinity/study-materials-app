@@ -35,10 +35,10 @@ export const materialCategoriesTable = pgTable(
   {
     categoryId: uuid("category_id")
       .notNull()
-      .references(() => categoryTable.id),
+      .references(() => categoryTable.id, { onDelete: "cascade" }),
     materialId: uuid("material_id")
       .notNull()
-      .references(() => materialTable.id),
+      .references(() => materialTable.id, { onDelete: "cascade" }),
   },
   (table) => {
     return { columns: [table.categoryId, table.materialId] };
