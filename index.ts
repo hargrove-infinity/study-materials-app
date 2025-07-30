@@ -180,35 +180,26 @@ app.get("/categories/:id", async (req, res) => {
 // Update one category
 app.put(
   "/categories/:id",
-  (req: Request<{ id: string }, {}, CategoryUpdate>, res) => {
+  async (req: Request<{ id: string }, {}, CategoryUpdate>, res) => {
     try {
       const body: unknown = req.body;
       const { id } = req.params;
       const parsedBody = categoryUpdateSchema.parse(body);
 
-      const foundCategory = db.categories.find(
-        (category) => category.id === id
-      );
+      const result = await drizzle
+        .update(categoryTable)
+        .set(parsedBody)
+        .where(eq(categoryTable.id, id))
+        .returning();
 
-      if (!foundCategory) {
+      const category = result[0];
+
+      if (!category) {
         res.status(404).send(`Category with provided ${id} is not found`);
         return;
       }
 
-      let key: keyof CategoryUpdate;
-
-      for (key in parsedBody) {
-        const value = parsedBody[key];
-        if (!value) {
-          continue;
-        }
-        foundCategory[key] = value;
-      }
-
-      foundCategory.updatedAt = Date.now();
-
-      console.log("PUT /categories/{id} DB:", db);
-      res.send("Category updated successfully");
+      res.send(category);
     } catch (error) {
       console.log(error);
       res.status(500).send("Error in update one category");
