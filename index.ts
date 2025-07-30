@@ -1,6 +1,11 @@
-import crypto from "crypto";
 import express, { Request } from "express";
 import { z, ZodError } from "zod";
+import { db as drizzle } from "./db";
+import {
+  categoryTable,
+  materialCategoriesTable,
+  materialTable,
+} from "./schema";
 
 enum MaterialTypeEnum {
   ARTICLE = "ARTICLE",
@@ -113,20 +118,19 @@ const PORT = 4000;
 // Categories endpoints
 
 // Create one category
-app.post("/categories", (req: Request<{}, {}, CategoryDef, {}>, res) => {
+app.post("/categories", async (req: Request<{}, {}, CategoryDef, {}>, res) => {
   try {
     const body: unknown = req.body;
     const parsedBody = categoryDefSchema.parse(body);
-    const id = crypto.randomUUID();
-    const category: Category = {
-      ...parsedBody,
-      id,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    db.categories.push(category);
-    console.log("POST /categories DB:", db);
-    res.send(category);
+
+    const result = await drizzle
+      .insert(categoryTable)
+      .values(parsedBody)
+      .returning();
+
+    const category = result[0];
+
+    res.status(201).send(category);
   } catch (error) {
     console.error(error);
     if (error instanceof ZodError) {
@@ -139,9 +143,12 @@ app.post("/categories", (req: Request<{}, {}, CategoryDef, {}>, res) => {
 });
 
 // Get all categories
-app.get("/categories", (req, res) => {
+app.get("/categories", async (req, res) => {
   try {
-    res.send(db.categories);
+    const categories = await drizzle.query.categoryTable.findMany({
+      with: { materialCategories: { with: { material: true } } },
+    });
+    res.send(categories);
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in get all categories");
@@ -240,28 +247,23 @@ app.delete("/categories/:id", (req, res) => {
 
 // Materials endpoints
 // Create one material
-app.post("/materials", (req: Request<{}, {}, MaterialDef, {}>, res) => {
+app.post("/materials", async (req: Request<{}, {}, MaterialDef, {}>, res) => {
   try {
     const body: unknown = req.body;
     const parsedBody = materialDefSchema.parse(body);
-    const id = crypto.randomUUID();
-    const { categoryIds, ...materialBase } = parsedBody;
 
-    const material: Material = {
-      ...materialBase,
-      id,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
+    const result = await drizzle
+      .insert(materialTable)
+      .values(parsedBody)
+      .returning();
 
-    db.materials.push(material);
+    const material = result[0];
 
-    for (const categoryId of categoryIds) {
-      const materialCategory: MaterialCategory = { categoryId, materialId: id };
-      db.materialCategories.push(materialCategory);
+    for (const categoryId of parsedBody.categoryIds) {
+      await drizzle
+        .insert(materialCategoriesTable)
+        .values({ materialId: material.id, categoryId });
     }
-
-    console.log("POST /materials DB:", db);
 
     res.send(material);
   } catch (error) {
@@ -277,9 +279,12 @@ app.post("/materials", (req: Request<{}, {}, MaterialDef, {}>, res) => {
 });
 
 // Get all materials
-app.get("/materials", (req, res) => {
+app.get("/materials", async (req, res) => {
   try {
-    res.send(db.materials);
+    const materials = await drizzle.query.materialTable.findMany({
+      with: { materialCategories: { with: { category: true } } },
+    });
+    res.send(materials);
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in get all materials");
