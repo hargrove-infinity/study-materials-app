@@ -6,6 +6,7 @@ import {
   materialCategoriesTable,
   materialTable,
 } from "./schema";
+import { eq } from "drizzle-orm";
 
 enum MaterialTypeEnum {
   ARTICLE = "ARTICLE",
@@ -156,10 +157,13 @@ app.get("/categories", async (req, res) => {
 });
 
 // Get one category
-app.get("/categories/:id", (req, res) => {
+app.get("/categories/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const foundCategory = db.categories.find((category) => category.id === id);
+
+    const foundCategory = await drizzle.query.categoryTable.findFirst({
+      where: eq(categoryTable.id, id),
+    });
 
     if (foundCategory) {
       res.send(foundCategory);
