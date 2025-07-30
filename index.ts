@@ -278,10 +278,13 @@ app.get("/materials", async (req, res) => {
 });
 
 // Get one material
-app.get("/materials/:id", (req, res) => {
+app.get("/materials/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const foundMaterial = db.materials.find((material) => material.id === id);
+
+    const foundMaterial = await drizzle.query.materialTable.findFirst({
+      where: eq(materialTable.id, id),
+    });
 
     if (foundMaterial) {
       res.send(foundMaterial);
