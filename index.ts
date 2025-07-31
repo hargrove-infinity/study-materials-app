@@ -6,7 +6,7 @@ import {
   materialCategoriesTable,
   materialTable,
 } from "./schema";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 enum MaterialTypeEnum {
   ARTICLE = "ARTICLE",
@@ -333,60 +333,61 @@ app.get("/materials/category/:categoryId", async (req, res) => {
 // Update one material
 app.put(
   "/materials/:id",
-  (req: Request<{ id: string }, {}, MaterialUpdate, {}>, res) => {
+  async (req: Request<{ id: string }, {}, MaterialUpdate, {}>, res) => {
     try {
       const body: unknown = req.body;
       const { id } = req.params;
       const parsedBody = materialUpdateSchema.parse(body);
+      const { categoryIds, ...restParsedBody } = parsedBody;
 
-      const foundMaterial = db.materials.find((material) => material.id === id);
+      const result = await drizzle
+        .update(materialTable)
+        .set(restParsedBody)
+        .where(eq(materialTable.id, id))
+        .returning();
 
-      if (!foundMaterial) {
+      const updatedMaterial = result[0];
+
+      if (!updatedMaterial) {
         res.status(404).send(`Material with provided ${id} is not found`);
         return;
       }
 
-      const { categoryIds, ...restParsedBody } = parsedBody;
-
-      let key: keyof Omit<MaterialUpdate, "categoryIds">;
-
-      for (key in restParsedBody) {
-        const value = restParsedBody[key];
-        if (!value) {
-          continue;
-        }
-
-        if (key === "url") {
-          foundMaterial[key] = value;
-        }
-
-        foundMaterial[key] = value as MaterialTypeEnum;
-      }
-
-      foundMaterial.updatedAt = Date.now();
-
       if (categoryIds) {
-        const materialCategoriesNotCurrentMaterial =
-          db.materialCategories.filter(
-            (materialCategory) => materialCategory.materialId !== id
-          );
+        const existingCategories = await drizzle
+          .select({ categoryId: materialCategoriesTable.categoryId })
+          .from(materialCategoriesTable)
+          .where(eq(materialCategoriesTable.materialId, id));
 
-        const updatedMaterialCategoriesOfCurrentMaterial = categoryIds.map(
-          (categoryId) => {
-            return { categoryId, materialId: id };
-          }
+        const existingCategoryIds = existingCategories.map(
+          (category) => category.categoryId
         );
 
-        const updatedMaterialCategories = [
-          ...materialCategoriesNotCurrentMaterial,
-          ...updatedMaterialCategoriesOfCurrentMaterial,
-        ];
+        const outdatedCategoryIds = existingCategoryIds.filter(
+          (categoryId) => !categoryIds.includes(categoryId)
+        );
 
-        db.materialCategories = updatedMaterialCategories;
+        if (outdatedCategoryIds.length) {
+          await drizzle
+            .delete(materialCategoriesTable)
+            .where(
+              and(
+                eq(materialCategoriesTable.materialId, id),
+                inArray(materialCategoriesTable.categoryId, outdatedCategoryIds)
+              )
+            );
+        }
+
+        const newCategoryIds = categoryIds
+          .filter((categoryId) => !existingCategoryIds.includes(categoryId))
+          .map((categoryId) => ({ materialId: id, categoryId }));
+
+        if (newCategoryIds.length) {
+          await drizzle.insert(materialCategoriesTable).values(newCategoryIds);
+        }
       }
 
-      console.log("PUT /materials/{id} DB:", db);
-      res.send("Material updated successfully");
+      res.send(updatedMaterial);
     } catch (error) {
       console.log(error);
       res.status(500).send("Error in update material");
