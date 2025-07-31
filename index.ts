@@ -396,31 +396,23 @@ app.put(
 );
 
 // Delete one material
-app.delete("/materials/:id", (req, res) => {
+app.delete("/materials/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const foundMaterial = db.materials.find((material) => material.id === id);
+    const result = await drizzle
+      .delete(materialTable)
+      .where(eq(materialTable.id, id))
+      .returning();
 
-    if (!foundMaterial) {
+    const material = result[0];
+
+    if (!material) {
       res.send(`Material with provided ${id} is not found`);
       return;
     }
 
-    const updatedMaterials = db.materials.filter(
-      (material) => material.id !== id
-    );
-
-    db.materials = updatedMaterials;
-
-    const updatedMaterialCategories = db.materialCategories.filter(
-      (materialCategory) => materialCategory.materialId !== id
-    );
-
-    db.materialCategories = updatedMaterialCategories;
-
-    console.log("DELETE /materials/{id} DB:", db);
-    res.send("Material deleted successfully");
+    res.send(material);
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in delete material");
