@@ -299,19 +299,31 @@ app.get("/materials/:id", async (req, res) => {
 });
 
 // Get all materials by one category
-app.get("/materials/category/:categoryId", (req, res) => {
+app.get("/materials/category/:categoryId", async (req, res) => {
   try {
     const { categoryId } = req.params;
 
-    const filteredMaterialIdsByCategory = db.materialCategories
-      .filter((materialCategory) => materialCategory.categoryId === categoryId)
-      .map((materialCategory) => materialCategory.materialId);
+    const materials = await drizzle
+      .select({
+        id: materialTable.id,
+        url: materialTable.url,
+        type: materialTable.type,
+        createdAt: materialTable.createdAt,
+        updatedAt: materialTable.updatedAt,
+        category: categoryTable.name,
+      })
+      .from(materialTable)
+      .innerJoin(
+        materialCategoriesTable,
+        eq(materialTable.id, materialCategoriesTable.materialId)
+      )
+      .innerJoin(
+        categoryTable,
+        eq(categoryTable.id, materialCategoriesTable.categoryId)
+      )
+      .where(eq(categoryTable.id, categoryId));
 
-    const filteredMaterials = db.materials.filter((material) =>
-      filteredMaterialIdsByCategory.includes(material.id)
-    );
-
-    res.send(filteredMaterials);
+    res.send(materials);
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in get one material by category");
