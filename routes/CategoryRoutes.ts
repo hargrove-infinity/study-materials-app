@@ -7,8 +7,7 @@ import {
   CategoryUpdate,
   categoryUpdateSchema,
 } from "../validation";
-import { db as drizzle } from "../db";
-import { categoryTable } from "../schema";
+import { db as drizzle, categoryTable } from "../drizzle";
 
 // Categories endpoints
 

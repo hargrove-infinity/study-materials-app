@@ -7,12 +7,12 @@ import {
   MaterialUpdate,
   materialUpdateSchema,
 } from "../validation";
-import { db as drizzle } from "../db";
 import {
+  db as drizzle,
   categoryTable,
   materialTable,
   materialCategoriesTable,
-} from "../schema";
+} from "../drizzle";
 
 // Materials endpoints
 
