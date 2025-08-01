@@ -7,6 +7,7 @@ export const materialType = pgEnum("materialType", [
   "COURSE",
   "IMAGE",
   "DOCUMENTATION",
+  "BOOK",
   "OTHER",
 ]);
 
