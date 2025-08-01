@@ -1,4 +1,5 @@
 import express, { Request } from "express";
+import { and, eq, inArray } from "drizzle-orm";
 import { z, ZodError } from "zod";
 import { db as drizzle } from "./db";
 import {
@@ -6,7 +7,7 @@ import {
   materialCategoriesTable,
   materialTable,
 } from "./schema";
-import { and, eq, inArray } from "drizzle-orm";
+import { BaseRouter } from "./routes";
 
 enum MaterialTypeEnum {
   ARTICLE = "ARTICLE",
@@ -25,7 +26,7 @@ const materialTypeSchema = z.enum(MaterialTypeEnum);
 // Categories
 
 // Category request body
-const categoryDefSchema = z.object({
+export const categoryDefSchema = z.object({
   name: z.string(),
   description: z.string(),
 });
@@ -38,7 +39,7 @@ const categorySchema = categoryDefSchema.extend({
 });
 
 // Category request body for put
-const categoryUpdateSchema = z.object({
+export const categoryUpdateSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
 });
@@ -79,11 +80,11 @@ const materialCategorySchema = z.object({
 /* TYPES FROM SCHEMAS */
 
 // Categories
-type CategoryDef = z.infer<typeof categoryDefSchema>;
+export type CategoryDef = z.infer<typeof categoryDefSchema>;
 
 type Category = z.infer<typeof categorySchema>;
 
-type CategoryUpdate = z.infer<typeof categoryUpdateSchema>;
+export type CategoryUpdate = z.infer<typeof categoryUpdateSchema>;
 
 // Materials
 type MaterialDef = z.infer<typeof materialDefSchema>;
@@ -114,122 +115,10 @@ const jsonMiddleware = express.json();
 app.use(jsonMiddleware);
 const PORT = 4000;
 
+// API router
+app.use(BaseRouter);
+
 /* ENDPOINTS */
-
-// Categories endpoints
-
-// Create one category
-app.post("/categories", async (req: Request<{}, {}, CategoryDef, {}>, res) => {
-  try {
-    const body: unknown = req.body;
-    const parsedBody = categoryDefSchema.parse(body);
-
-    const result = await drizzle
-      .insert(categoryTable)
-      .values(parsedBody)
-      .returning();
-
-    const category = result[0];
-
-    res.status(201).send(category);
-  } catch (error) {
-    console.error(error);
-    if (error instanceof ZodError) {
-      res.status(422).send("Error creating category");
-      return;
-    }
-
-    res.status(500).send("Unknown error");
-  }
-});
-
-// Get all categories
-app.get("/categories", async (req, res) => {
-  try {
-    const categories = await drizzle.query.categoryTable.findMany({
-      with: { materialCategories: { with: { material: true } } },
-    });
-    res.send(categories);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Error in get all categories");
-  }
-});
-
-// Get one category
-app.get("/categories/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const foundCategory = await drizzle.query.categoryTable.findFirst({
-      where: eq(categoryTable.id, id),
-    });
-
-    if (foundCategory) {
-      res.send(foundCategory);
-      return;
-    }
-
-    res.status(404).send(`Category with provided ${id} is not found`);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Error in get one category");
-  }
-});
-
-// Update one category
-app.put(
-  "/categories/:id",
-  async (req: Request<{ id: string }, {}, CategoryUpdate>, res) => {
-    try {
-      const body: unknown = req.body;
-      const { id } = req.params;
-      const parsedBody = categoryUpdateSchema.parse(body);
-
-      const result = await drizzle
-        .update(categoryTable)
-        .set(parsedBody)
-        .where(eq(categoryTable.id, id))
-        .returning();
-
-      const category = result[0];
-
-      if (!category) {
-        res.status(404).send(`Category with provided ${id} is not found`);
-        return;
-      }
-
-      res.send(category);
-    } catch (error) {
-      console.log(error);
-      res.status(500).send("Error in update one category");
-    }
-  }
-);
-
-// Delete one category
-app.delete("/categories/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const result = await drizzle
-      .delete(categoryTable)
-      .where(eq(categoryTable.id, id))
-      .returning();
-
-    const category = result[0];
-
-    if (!category) {
-      res.status(404).send(`Category with provided ${id} is not found`);
-      return;
-    }
-
-    res.send(category);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Error in delete one category");
-  }
-});
 
 // Materials endpoints
 // Create one material
