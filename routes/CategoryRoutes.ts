@@ -6,7 +6,7 @@ import {
   categoryDefSchema,
   CategoryUpdate,
   categoryUpdateSchema,
-} from "..";
+} from "../validation";
 import { db as drizzle } from "../db";
 import { categoryTable } from "../schema";
 
