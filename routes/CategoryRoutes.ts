@@ -42,9 +42,7 @@ async function createOneCategory(
 // Get all categories
 async function getAllCategories(req: Request, res: Response): Promise<void> {
   try {
-    const categories = await db.query.categoryTable.findMany({
-      with: { materialCategories: { with: { material: true } } },
-    });
+    const categories = await db.query.categoryTable.findMany();
     res.send(categories);
   } catch (error) {
     console.log(error);
