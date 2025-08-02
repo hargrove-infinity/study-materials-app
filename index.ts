@@ -1,6 +1,6 @@
 import express from "express";
 import { BaseRouter } from "./routes";
-import { ENV } from "./common";
+import { env } from "./common";
 
 /* SETUP APP */
 const app = express();
@@ -16,6 +16,6 @@ app.all("/{*splat}", (req, res) => {
 });
 
 /* RUN APP */
-app.listen(ENV.Port, () => {
-  console.log(`Server is running on ${ENV.Port}`);
+app.listen(env.port, () => {
+  console.log(`Server is running on ${env.port}`);
 });

@@ -4,12 +4,12 @@ import { MaterialTypeEnum } from "../types";
 /* VALIDATION SCHEMAS */
 
 // ENV
-export const EnvSchema = z.object({
-  Port: z
+export const envSchema = z.object({
+  port: z
     .string()
     .default("4000")
     .transform((val) => parseInt(val, 10)),
-  DatabaseUrl: z.string().nonempty(),
+  databaseUrl: z.string().nonempty(),
 });
 
 // MaterialType

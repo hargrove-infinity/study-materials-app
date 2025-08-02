@@ -1,38 +1,38 @@
 import { Router } from "express";
 import { CategoryRoutes } from "./CategoryRoutes";
 import { MaterialRoutes } from "./MaterialRoutes";
-import { Paths } from "../common";
+import { paths } from "../common";
 
 // Category router
 const CategoryRouter = Router();
 
-CategoryRouter.post(Paths.Categories.Base, CategoryRoutes.createOneCategory);
+CategoryRouter.post(paths.categories.base, CategoryRoutes.createOneCategory);
 
-CategoryRouter.get(Paths.Categories.Base, CategoryRoutes.getAllCategories);
+CategoryRouter.get(paths.categories.base, CategoryRoutes.getAllCategories);
 
-CategoryRouter.get(Paths.Categories.Id, CategoryRoutes.getOneCategory);
+CategoryRouter.get(paths.categories.id, CategoryRoutes.getOneCategory);
 
-CategoryRouter.put(Paths.Categories.Id, CategoryRoutes.updateOneCategory);
+CategoryRouter.put(paths.categories.id, CategoryRoutes.updateOneCategory);
 
-CategoryRouter.delete(Paths.Categories.Id, CategoryRoutes.deleteOneCategory);
+CategoryRouter.delete(paths.categories.id, CategoryRoutes.deleteOneCategory);
 
 // Material router
 const MaterialRouter = Router();
 
-MaterialRouter.post(Paths.Materials.Base, MaterialRoutes.createOneMaterial);
+MaterialRouter.post(paths.materials.base, MaterialRoutes.createOneMaterial);
 
-MaterialRouter.get(Paths.Materials.Base, MaterialRoutes.getAllMaterials);
+MaterialRouter.get(paths.materials.base, MaterialRoutes.getAllMaterials);
 
-MaterialRouter.get(Paths.Materials.Id, MaterialRoutes.getOneMaterial);
+MaterialRouter.get(paths.materials.id, MaterialRoutes.getOneMaterial);
 
 MaterialRouter.get(
-  Paths.Materials.ByCategory,
+  paths.materials.byCategory,
   MaterialRoutes.getAllMaterialsByCategory
 );
 
-MaterialRouter.put(Paths.Materials.Id, MaterialRoutes.updateOneMaterial);
+MaterialRouter.put(paths.materials.id, MaterialRoutes.updateOneMaterial);
 
-MaterialRouter.delete(Paths.Materials.Id, MaterialRoutes.deleteOneMaterial);
+MaterialRouter.delete(paths.materials.id, MaterialRoutes.deleteOneMaterial);
 
 // Base router
 const BaseRouter = Router();

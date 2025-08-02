@@ -1,12 +1,12 @@
-export const Paths = {
-  CatchAll: "/{*splat}",
-  Categories: {
-    Base: "/categories",
-    Id: "/categories/:id",
+export const paths = {
+  catchAll: "/{*splat}",
+  categories: {
+    base: "/categories",
+    id: "/categories/:id",
   },
-  Materials: {
-    Base: "/materials",
-    Id: "/materials/:id",
-    ByCategory: "/materials/category/:categoryId",
+  materials: {
+    base: "/materials",
+    id: "/materials/:id",
+    byCategory: "/materials/category/:categoryId",
   },
 } as const;

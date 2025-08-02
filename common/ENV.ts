@@ -1,6 +1,6 @@
-import { EnvSchema } from "../validation";
+import { envSchema } from "../validation";
 
-export const ENV = EnvSchema.parse({
-  Port: process.env.PORT,
-  DatabaseUrl: process.env.DATABASE_URL,
+export const env = envSchema.parse({
+  port: process.env.PORT,
+  databaseUrl: process.env.DATABASE_URL,
 });

@@ -1,2 +1,2 @@
-export * from "./ENV";
-export * from "./Paths";
+export * from "./env";
+export * from "./paths";
