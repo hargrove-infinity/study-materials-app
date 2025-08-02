@@ -86,7 +86,7 @@ async function getAllMaterialsByCategory(
   res: Response
 ): Promise<void> {
   try {
-    const { categoryId } = req.params;
+    const { id } = req.params;
 
     const materials = await db
       .select({
@@ -106,7 +106,7 @@ async function getAllMaterialsByCategory(
         categoryTable,
         eq(categoryTable.id, materialCategoriesTable.categoryId)
       )
-      .where(eq(categoryTable.id, categoryId));
+      .where(eq(categoryTable.id, id));
 
     res.send(materials);
   } catch (error) {
