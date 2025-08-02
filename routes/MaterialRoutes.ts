@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, exists, inArray } from "drizzle-orm";
 import { ZodError } from "zod";
 import {
   materialDefSchema,
@@ -97,25 +97,21 @@ async function getAllMaterialsByCategory(
     const parsedParams = queryParamsIdSchema.parse(params);
     const { id } = parsedParams;
 
-    const materials = await db
-      .select({
-        id: materialTable.id,
-        url: materialTable.url,
-        type: materialTable.type,
-        createdAt: materialTable.createdAt,
-        updatedAt: materialTable.updatedAt,
-        category: categoryTable.name,
-      })
-      .from(materialTable)
-      .innerJoin(
-        materialCategoriesTable,
-        eq(materialTable.id, materialCategoriesTable.materialId)
-      )
-      .innerJoin(
-        categoryTable,
-        eq(categoryTable.id, materialCategoriesTable.categoryId)
-      )
-      .where(eq(categoryTable.id, id));
+    const materials = await db.query.materialTable.findMany({
+      where: (material, { exists }) => {
+        return exists(
+          db
+            .select()
+            .from(materialCategoriesTable)
+            .where(
+              and(
+                eq(materialCategoriesTable.materialId, material.id),
+                eq(materialCategoriesTable.categoryId, id)
+              )
+            )
+        );
+      },
+    });
 
     res.send(materials);
   } catch (error) {
