@@ -1,43 +1,43 @@
 import { Router } from "express";
-import { CategoryRoutes } from "./CategoryRoutes";
-import { MaterialRoutes } from "./MaterialRoutes";
 import { paths } from "../common";
+import { categoryRoutes } from "./categoryRoutes";
+import { materialRoutes } from "./materialRoutes";
 
 // Category router
-const CategoryRouter = Router();
+const categoryRouter = Router();
 
-CategoryRouter.post(paths.categories.base, CategoryRoutes.createOneCategory);
+categoryRouter.post(paths.categories.base, categoryRoutes.createOneCategory);
 
-CategoryRouter.get(paths.categories.base, CategoryRoutes.getAllCategories);
+categoryRouter.get(paths.categories.base, categoryRoutes.getAllCategories);
 
-CategoryRouter.get(paths.categories.id, CategoryRoutes.getOneCategory);
+categoryRouter.get(paths.categories.id, categoryRoutes.getOneCategory);
 
-CategoryRouter.put(paths.categories.id, CategoryRoutes.updateOneCategory);
+categoryRouter.put(paths.categories.id, categoryRoutes.updateOneCategory);
 
-CategoryRouter.delete(paths.categories.id, CategoryRoutes.deleteOneCategory);
+categoryRouter.delete(paths.categories.id, categoryRoutes.deleteOneCategory);
 
 // Material router
-const MaterialRouter = Router();
+const materialRouter = Router();
 
-MaterialRouter.post(paths.materials.base, MaterialRoutes.createOneMaterial);
+materialRouter.post(paths.materials.base, materialRoutes.createOneMaterial);
 
-MaterialRouter.get(paths.materials.base, MaterialRoutes.getAllMaterials);
+materialRouter.get(paths.materials.base, materialRoutes.getAllMaterials);
 
-MaterialRouter.get(paths.materials.id, MaterialRoutes.getOneMaterial);
+materialRouter.get(paths.materials.id, materialRoutes.getOneMaterial);
 
-MaterialRouter.get(
+materialRouter.get(
   paths.materials.byCategory,
-  MaterialRoutes.getAllMaterialsByCategory
+  materialRoutes.getAllMaterialsByCategory
 );
 
-MaterialRouter.put(paths.materials.id, MaterialRoutes.updateOneMaterial);
+materialRouter.put(paths.materials.id, materialRoutes.updateOneMaterial);
 
-MaterialRouter.delete(paths.materials.id, MaterialRoutes.deleteOneMaterial);
+materialRouter.delete(paths.materials.id, materialRoutes.deleteOneMaterial);
 
 // Base router
-const BaseRouter = Router();
+const baseRouter = Router();
 
-BaseRouter.use(CategoryRouter);
-BaseRouter.use(MaterialRouter);
+baseRouter.use(categoryRouter);
+baseRouter.use(materialRouter);
 
-export { BaseRouter };
+export { baseRouter };

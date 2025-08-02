@@ -209,7 +209,7 @@ async function deleteOneMaterial(req: Request, res: Response): Promise<void> {
   }
 }
 
-export const MaterialRoutes = {
+export const materialRoutes = {
   createOneMaterial,
   getAllMaterials,
   getOneMaterial,

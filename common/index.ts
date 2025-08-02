@@ -1,2 +1,2 @@
-export * from "./env";
+export * from "./envVariables";
 export * from "./paths";

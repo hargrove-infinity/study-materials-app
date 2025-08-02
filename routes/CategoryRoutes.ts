@@ -127,7 +127,7 @@ async function deleteOneCategory(req: Request, res: Response): Promise<void> {
   }
 }
 
-export const CategoryRoutes = {
+export const categoryRoutes = {
   createOneCategory,
   getAllCategories,
   getOneCategory,

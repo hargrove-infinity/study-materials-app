@@ -1,6 +1,6 @@
 import express from "express";
-import { BaseRouter } from "./routes";
-import { env } from "./common";
+import { baseRouter } from "./routes";
+import { envVariables } from "./common";
 
 /* SETUP APP */
 const app = express();
@@ -8,7 +8,7 @@ const jsonMiddleware = express.json();
 app.use(jsonMiddleware);
 
 // API router
-app.use(BaseRouter);
+app.use(baseRouter);
 
 // Catch all routes, not found route error
 app.all("/{*splat}", (req, res) => {
@@ -16,6 +16,6 @@ app.all("/{*splat}", (req, res) => {
 });
 
 /* RUN APP */
-app.listen(env.port, () => {
-  console.log(`Server is running on ${env.port}`);
+app.listen(envVariables.port, () => {
+  console.log(`Server is running on ${envVariables.port}`);
 });
