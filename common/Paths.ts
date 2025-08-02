@@ -7,6 +7,6 @@ export const paths = {
   materials: {
     base: "/materials",
     id: "/materials/:id",
-    byCategory: "/materials/category/:categoryId",
+    byCategory: "/materials/category/:id",
   },
 } as const;
