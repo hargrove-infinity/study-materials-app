@@ -8,7 +8,7 @@ import {
   materialUpdateSchema,
 } from "../validation";
 import {
-  db as drizzle,
+  db,
   categoryTable,
   materialTable,
   materialCategoriesTable,
@@ -25,7 +25,7 @@ async function createOneMaterial(
     const body: unknown = req.body;
     const parsedBody = materialDefSchema.parse(body);
 
-    const result = await drizzle
+    const result = await db
       .insert(materialTable)
       .values(parsedBody)
       .returning();
@@ -33,7 +33,7 @@ async function createOneMaterial(
     const material = result[0];
 
     for (const categoryId of parsedBody.categoryIds) {
-      await drizzle
+      await db
         .insert(materialCategoriesTable)
         .values({ materialId: material.id, categoryId });
     }
@@ -54,7 +54,7 @@ async function createOneMaterial(
 // Get all materials
 async function getAllMaterials(req: Request, res: Response): Promise<void> {
   try {
-    const materials = await drizzle.query.materialTable.findMany({
+    const materials = await db.query.materialTable.findMany({
       with: { materialCategories: { with: { category: true } } },
     });
     res.send(materials);
@@ -69,7 +69,7 @@ async function getOneMaterial(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
-    const foundMaterial = await drizzle.query.materialTable.findFirst({
+    const foundMaterial = await db.query.materialTable.findFirst({
       where: eq(materialTable.id, id),
     });
 
@@ -93,7 +93,7 @@ async function getAllMaterialsByCategory(
   try {
     const { categoryId } = req.params;
 
-    const materials = await drizzle
+    const materials = await db
       .select({
         id: materialTable.id,
         url: materialTable.url,
@@ -131,7 +131,7 @@ async function updateOneMaterial(
     const parsedBody = materialUpdateSchema.parse(body);
     const { categoryIds, ...restParsedBody } = parsedBody;
 
-    const result = await drizzle
+    const result = await db
       .update(materialTable)
       .set(restParsedBody)
       .where(eq(materialTable.id, id))
@@ -145,7 +145,7 @@ async function updateOneMaterial(
     }
 
     if (categoryIds) {
-      const existingCategories = await drizzle
+      const existingCategories = await db
         .select({ categoryId: materialCategoriesTable.categoryId })
         .from(materialCategoriesTable)
         .where(eq(materialCategoriesTable.materialId, id));
@@ -159,7 +159,7 @@ async function updateOneMaterial(
       );
 
       if (outdatedCategoryIds.length) {
-        await drizzle
+        await db
           .delete(materialCategoriesTable)
           .where(
             and(
@@ -174,7 +174,7 @@ async function updateOneMaterial(
         .map((categoryId) => ({ materialId: id, categoryId }));
 
       if (newCategoryIds.length) {
-        await drizzle.insert(materialCategoriesTable).values(newCategoryIds);
+        await db.insert(materialCategoriesTable).values(newCategoryIds);
       }
     }
 
@@ -190,7 +190,7 @@ async function deleteOneMaterial(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
-    const result = await drizzle
+    const result = await db
       .delete(materialTable)
       .where(eq(materialTable.id, id))
       .returning();

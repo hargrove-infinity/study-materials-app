@@ -7,7 +7,7 @@ import {
   CategoryUpdate,
   categoryUpdateSchema,
 } from "../validation";
-import { db as drizzle, categoryTable } from "../drizzle";
+import { db, categoryTable } from "../drizzle";
 
 // Categories endpoints
 
@@ -20,7 +20,7 @@ async function createOneCategory(
     const body: unknown = req.body;
     const parsedBody = categoryDefSchema.parse(body);
 
-    const result = await drizzle
+    const result = await db
       .insert(categoryTable)
       .values(parsedBody)
       .returning();
@@ -42,7 +42,7 @@ async function createOneCategory(
 // Get all categories
 async function getAllCategories(req: Request, res: Response): Promise<void> {
   try {
-    const categories = await drizzle.query.categoryTable.findMany({
+    const categories = await db.query.categoryTable.findMany({
       with: { materialCategories: { with: { material: true } } },
     });
     res.send(categories);
@@ -57,7 +57,7 @@ async function getOneCategory(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
-    const foundCategory = await drizzle.query.categoryTable.findFirst({
+    const foundCategory = await db.query.categoryTable.findFirst({
       where: eq(categoryTable.id, id),
     });
 
@@ -83,7 +83,7 @@ async function updateOneCategory(
     const { id } = req.params;
     const parsedBody = categoryUpdateSchema.parse(body);
 
-    const result = await drizzle
+    const result = await db
       .update(categoryTable)
       .set(parsedBody)
       .where(eq(categoryTable.id, id))
@@ -108,7 +108,7 @@ async function deleteOneCategory(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
-    const result = await drizzle
+    const result = await db
       .delete(categoryTable)
       .where(eq(categoryTable.id, id))
       .returning();
