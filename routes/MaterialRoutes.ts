@@ -53,9 +53,7 @@ async function createOneMaterial(
 // Get all materials
 async function getAllMaterials(req: Request, res: Response): Promise<void> {
   try {
-    const materials = await db.query.materialTable.findMany({
-      with: { materialCategories: { with: { category: true } } },
-    });
+    const materials = await db.query.materialTable.findMany();
     res.send(materials);
   } catch (error) {
     console.log(error);
