@@ -12,6 +12,9 @@ export const envSchema = z.object({
   databaseUrl: z.string().nonempty(),
 });
 
+// Query Params Id
+export const queryParamsIdSchema = z.object({ id: z.uuid() });
+
 // MaterialType
 const materialTypeSchema = z.enum(MaterialTypeEnum);
 

@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
 import { and, eq, inArray } from "drizzle-orm";
 import { ZodError } from "zod";
-import { materialDefSchema, materialUpdateSchema } from "../validation";
+import {
+  materialDefSchema,
+  materialUpdateSchema,
+  queryParamsIdSchema,
+} from "../validation";
 import {
   db,
   categoryTable,
@@ -60,9 +64,14 @@ async function getAllMaterials(req: Request, res: Response): Promise<void> {
 }
 
 // Get one material
-async function getOneMaterial(req: Request, res: Response): Promise<void> {
+async function getOneMaterial(
+  req: Request<unknown>,
+  res: Response
+): Promise<void> {
   try {
-    const { id } = req.params;
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
 
     const foundMaterial = await db.query.materialTable.findFirst({
       where: eq(materialTable.id, id),
@@ -82,11 +91,13 @@ async function getOneMaterial(req: Request, res: Response): Promise<void> {
 
 // Get all materials by one category
 async function getAllMaterialsByCategory(
-  req: Request,
+  req: Request<unknown>,
   res: Response
 ): Promise<void> {
   try {
-    const { id } = req.params;
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
 
     const materials = await db
       .select({
@@ -117,13 +128,17 @@ async function getAllMaterialsByCategory(
 
 // Update one material
 async function updateOneMaterial(
-  req: Request<{ id: string }, {}, unknown, {}>,
+  req: Request<unknown, {}, unknown, {}>,
   res: Response
 ): Promise<void> {
   try {
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
+
     const body = req.body;
-    const { id } = req.params;
     const parsedBody = materialUpdateSchema.parse(body);
+
     const { categoryIds, ...restParsedBody } = parsedBody;
 
     const result = await db
@@ -181,9 +196,14 @@ async function updateOneMaterial(
 }
 
 // Delete one material
-async function deleteOneMaterial(req: Request, res: Response): Promise<void> {
+async function deleteOneMaterial(
+  req: Request<unknown>,
+  res: Response
+): Promise<void> {
   try {
-    const { id } = req.params;
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
 
     const result = await db
       .delete(materialTable)

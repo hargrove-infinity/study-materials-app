@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
 import { eq } from "drizzle-orm";
 import { ZodError } from "zod";
-import { categoryDefSchema, categoryUpdateSchema } from "../validation";
+import {
+  categoryDefSchema,
+  categoryUpdateSchema,
+  queryParamsIdSchema,
+} from "../validation";
 import { db, categoryTable } from "../drizzle";
 
 // Categories endpoints
@@ -46,9 +50,14 @@ async function getAllCategories(req: Request, res: Response): Promise<void> {
 }
 
 // Get one category
-async function getOneCategory(req: Request, res: Response): Promise<void> {
+async function getOneCategory(
+  req: Request<unknown>,
+  res: Response
+): Promise<void> {
   try {
-    const { id } = req.params;
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
 
     const foundCategory = await db.query.categoryTable.findFirst({
       where: eq(categoryTable.id, id),
@@ -68,12 +77,15 @@ async function getOneCategory(req: Request, res: Response): Promise<void> {
 
 // Update one category
 async function updateOneCategory(
-  req: Request<{ id: string }, {}, unknown>,
+  req: Request<unknown, {}, unknown>,
   res: Response
 ): Promise<void> {
   try {
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
+
     const body = req.body;
-    const { id } = req.params;
     const parsedBody = categoryUpdateSchema.parse(body);
 
     const result = await db
@@ -97,9 +109,14 @@ async function updateOneCategory(
 }
 
 // Delete one category
-async function deleteOneCategory(req: Request, res: Response): Promise<void> {
+async function deleteOneCategory(
+  req: Request<unknown>,
+  res: Response
+): Promise<void> {
   try {
-    const { id } = req.params;
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
 
     const result = await db
       .delete(categoryTable)
