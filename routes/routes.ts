@@ -1,0 +1,43 @@
+import { Router } from "express";
+import { paths } from "../common";
+import { categoryRoutes } from "./categoryRoutes";
+import { materialRoutes } from "./materialRoutes";
+
+// Category router
+const categoryRouter = Router();
+
+categoryRouter.post(paths.categories.base, categoryRoutes.createOneCategory);
+
+categoryRouter.get(paths.categories.base, categoryRoutes.getAllCategories);
+
+categoryRouter.get(paths.categories.id, categoryRoutes.getOneCategory);
+
+categoryRouter.put(paths.categories.id, categoryRoutes.updateOneCategory);
+
+categoryRouter.delete(paths.categories.id, categoryRoutes.deleteOneCategory);
+
+// Material router
+const materialRouter = Router();
+
+materialRouter.post(paths.materials.base, materialRoutes.createOneMaterial);
+
+materialRouter.get(paths.materials.base, materialRoutes.getAllMaterials);
+
+materialRouter.get(paths.materials.id, materialRoutes.getOneMaterial);
+
+materialRouter.get(
+  paths.materials.byCategory,
+  materialRoutes.getAllMaterialsByCategory
+);
+
+materialRouter.put(paths.materials.id, materialRoutes.updateOneMaterial);
+
+materialRouter.delete(paths.materials.id, materialRoutes.deleteOneMaterial);
+
+// Base router
+const baseRouter = Router();
+
+baseRouter.use(categoryRouter);
+baseRouter.use(materialRouter);
+
+export { baseRouter };
