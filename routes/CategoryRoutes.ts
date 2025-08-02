@@ -1,23 +1,18 @@
 import { Request, Response } from "express";
 import { eq } from "drizzle-orm";
 import { ZodError } from "zod";
-import {
-  CategoryDef,
-  categoryDefSchema,
-  CategoryUpdate,
-  categoryUpdateSchema,
-} from "../validation";
+import { categoryDefSchema, categoryUpdateSchema } from "../validation";
 import { db, categoryTable } from "../drizzle";
 
 // Categories endpoints
 
 // Create one category
 async function createOneCategory(
-  req: Request<{}, {}, CategoryDef, {}>,
+  req: Request<{}, {}, unknown, {}>,
   res: Response
 ): Promise<void> {
   try {
-    const body: unknown = req.body;
+    const body = req.body;
     const parsedBody = categoryDefSchema.parse(body);
 
     const result = await db
@@ -73,11 +68,11 @@ async function getOneCategory(req: Request, res: Response): Promise<void> {
 
 // Update one category
 async function updateOneCategory(
-  req: Request<{ id: string }, {}, CategoryUpdate>,
+  req: Request<{ id: string }, {}, unknown>,
   res: Response
 ): Promise<void> {
   try {
-    const body: unknown = req.body;
+    const body = req.body;
     const { id } = req.params;
     const parsedBody = categoryUpdateSchema.parse(body);
 

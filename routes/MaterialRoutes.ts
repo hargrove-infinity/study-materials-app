@@ -1,12 +1,7 @@
 import { Request, Response } from "express";
 import { and, eq, inArray } from "drizzle-orm";
 import { ZodError } from "zod";
-import {
-  MaterialDef,
-  materialDefSchema,
-  MaterialUpdate,
-  materialUpdateSchema,
-} from "../validation";
+import { materialDefSchema, materialUpdateSchema } from "../validation";
 import {
   db,
   categoryTable,
@@ -18,11 +13,11 @@ import {
 
 // Create one material
 async function createOneMaterial(
-  req: Request<{}, {}, MaterialDef, {}>,
+  req: Request<{}, {}, unknown, {}>,
   res: Response
 ): Promise<void> {
   try {
-    const body: unknown = req.body;
+    const body = req.body;
     const parsedBody = materialDefSchema.parse(body);
 
     const result = await db
@@ -122,11 +117,11 @@ async function getAllMaterialsByCategory(
 
 // Update one material
 async function updateOneMaterial(
-  req: Request<{ id: string }, {}, MaterialUpdate, {}>,
+  req: Request<{ id: string }, {}, unknown, {}>,
   res: Response
 ): Promise<void> {
   try {
-    const body: unknown = req.body;
+    const body = req.body;
     const { id } = req.params;
     const parsedBody = materialUpdateSchema.parse(body);
     const { categoryIds, ...restParsedBody } = parsedBody;
