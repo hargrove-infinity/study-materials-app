@@ -1,17 +1,12 @@
 import { Request, Response } from "express";
-import { and, eq, exists, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { ZodError } from "zod";
 import {
   materialDefSchema,
   materialUpdateSchema,
   queryParamsIdSchema,
 } from "../validation";
-import {
-  db,
-  categoryTable,
-  materialTable,
-  materialCategoriesTable,
-} from "../drizzle";
+import { db, materialTable, materialCategoriesTable } from "../drizzle";
 
 // Materials endpoints
 
@@ -111,9 +106,26 @@ async function getAllMaterialsByCategory(
             )
         );
       },
+      with: {
+        materialCategories: {
+          columns: { materialId: false, categoryId: false },
+          with: { category: { columns: { name: true } } },
+        },
+      },
     });
 
-    res.send(materials);
+    const formattedMaterials = materials.map(
+      ({ materialCategories, ...material }) => {
+        return {
+          ...material,
+          categories: materialCategories.map((materialCategory) => {
+            return materialCategory.category.name;
+          }),
+        };
+      }
+    );
+
+    res.send(formattedMaterials);
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in get one material by category");
