@@ -15,6 +15,11 @@ export const envSchema = z.object({
 // Query Params Id
 export const queryParamsIdSchema = z.object({ id: z.uuid() });
 
+// Users
+export const userDefSchema = z.object({
+  email: z.email().nonempty(),
+});
+
 // MaterialType
 const materialTypeSchema = z.enum(MaterialTypeEnum);
 
