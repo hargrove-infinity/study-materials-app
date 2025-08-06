@@ -36,6 +36,8 @@ export const menteeTable = pgTable("mentee", {
   userId: uuid("user_id")
     .notNull()
     .references(() => userTable.id),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
