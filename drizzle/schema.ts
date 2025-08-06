@@ -98,6 +98,18 @@ export const materialRecommendationsTable = pgTable(
 );
 
 // Relations
+export const userReferredUsersRelations = relations(userTable, ({ many }) => ({
+  referredUsers: many(userTable, { relationName: "referredUsers" }),
+}));
+
+export const referredByUserRelations = relations(userTable, ({ one }) => ({
+  referredBy: one(userTable, {
+    fields: [userTable.referredByUserId],
+    references: [userTable.id],
+    relationName: "referredUsers",
+  }),
+}));
+
 export const userRelations = relations(userTable, ({ one }) => ({
   mentee: one(menteeTable),
 }));
