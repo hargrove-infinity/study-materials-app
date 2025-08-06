@@ -42,6 +42,7 @@ const materialBaseSchema = z.object({
 
 // Material request body
 export const materialDefSchema = materialBaseSchema.extend({
+  menteeId: z.uuid(),
   categoryIds: z.string().array(),
 });
 
