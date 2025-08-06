@@ -20,6 +20,13 @@ export const userDefSchema = z.object({
   email: z.email().nonempty(),
 });
 
+// Mentees
+export const menteeDefSchema = z.object({
+  firstName: z.string().nonempty(),
+  lastName: z.string().nonempty(),
+  userId: z.uuid().nonempty(),
+});
+
 // MaterialType
 const materialTypeSchema = z.enum(MaterialTypeEnum);
 

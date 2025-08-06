@@ -2,11 +2,16 @@ import { Router } from "express";
 import { paths } from "../common";
 import { categoryRoutes } from "./categoryRoutes";
 import { materialRoutes } from "./materialRoutes";
+import { menteeRoutes } from "./menteeRoutes";
 import { userRoutes } from "./userRoutes";
 
 // User router
 const userRouter = Router();
 userRouter.post(paths.users.base, userRoutes.createOneUser);
+
+// Mentee router
+const menteeRouter = Router();
+menteeRouter.post(paths.mentees.base, menteeRoutes.createOneMentee);
 
 // Category router
 const categoryRouter = Router();
@@ -31,6 +36,7 @@ materialRouter.delete(paths.materials.id, materialRoutes.deleteOneMaterial);
 // Base router
 const baseRouter = Router();
 baseRouter.use(userRouter);
+baseRouter.use(menteeRouter);
 baseRouter.use(categoryRouter);
 baseRouter.use(materialRouter);
 
