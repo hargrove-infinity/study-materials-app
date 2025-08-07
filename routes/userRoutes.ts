@@ -61,6 +61,7 @@ async function createOneUserReferred(
   }
 }
 
+// Get all users
 async function getAllUsers(req: Request, res: Response): Promise<void> {
   try {
     const users = await db.query.userTable.findMany();
@@ -71,6 +72,7 @@ async function getAllUsers(req: Request, res: Response): Promise<void> {
   }
 }
 
+// Get one user
 async function getOneUser(req: Request<unknown>, res: Response): Promise<void> {
   try {
     const params = req.params;
@@ -93,9 +95,56 @@ async function getOneUser(req: Request<unknown>, res: Response): Promise<void> {
   }
 }
 
+// Update one user
+async function updateOneUser(
+  req: Request<unknown, {}, unknown>,
+  res: Response
+): Promise<void> {
+  try {
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
+
+    const fetchedUserById = await db.query.userTable.findFirst({
+      where: eq(userTable.id, id),
+    });
+
+    if (!fetchedUserById) {
+      res.status(400).send(`User with provided id ${id} is not found`);
+      return;
+    }
+
+    const body = req.body;
+    const parsedBody = userDefSchema.parse(body);
+
+    const fetchedUserByEmail = await db.query.userTable.findFirst({
+      where: eq(userTable.email, parsedBody.email),
+    });
+
+    if (fetchedUserByEmail) {
+      res.status(409).send("User can not update email");
+      return;
+    }
+
+    const result = await db
+      .update(userTable)
+      .set(parsedBody)
+      .where(eq(userTable.id, id))
+      .returning();
+
+    const updatedUser = result[0];
+
+    res.send(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in updating one user");
+  }
+}
+
 export const userRoutes = {
   createOneUser,
   createOneUserReferred,
   getAllUsers,
   getOneUser,
+  updateOneUser,
 } as const;
