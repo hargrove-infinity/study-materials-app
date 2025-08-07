@@ -38,7 +38,7 @@ async function createOneUser(
 async function createOneUserReferred(
   req: Request<unknown, {}, unknown>,
   res: Response
-) {
+): Promise<void> {
   try {
     const params = req.params;
     const parsedParams = queryParamsIdSchema.parse(params);
@@ -61,7 +61,7 @@ async function createOneUserReferred(
   }
 }
 
-async function getAllUsers(req: Request, res: Response) {
+async function getAllUsers(req: Request, res: Response): Promise<void> {
   try {
     const users = await db.query.userTable.findMany();
     res.send(users);
@@ -71,8 +71,31 @@ async function getAllUsers(req: Request, res: Response) {
   }
 }
 
+async function getOneUser(req: Request<unknown>, res: Response): Promise<void> {
+  try {
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
+
+    const user = await db.query.userTable.findFirst({
+      where: eq(userTable.id, id),
+    });
+
+    if (!user) {
+      res.status(400).send(`User with provided id ${id} is not found`);
+      return;
+    }
+
+    res.send(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in get one user");
+  }
+}
+
 export const userRoutes = {
   createOneUser,
   createOneUserReferred,
   getAllUsers,
+  getOneUser,
 } as const;
