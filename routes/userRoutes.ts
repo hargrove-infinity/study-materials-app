@@ -49,7 +49,7 @@ async function createOneUserReferred(
 
     const result = await db
       .insert(userTable)
-      .values({ ...parsedBody, referredByUserId: id })
+      .values({ ...parsedBody, invitedByUserId: id })
       .returning();
 
     const user = result[0];

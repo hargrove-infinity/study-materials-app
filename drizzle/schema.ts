@@ -22,7 +22,7 @@ export const materialType = pgEnum("materialType", [
 export const userTable = pgTable("user", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
-  referredByUserId: uuid("referred_by_user_id").references(
+  invitedByUserId: uuid("invited_by_user_id").references(
     (): AnyPgColumn => userTable.id
   ),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -99,11 +99,11 @@ export const materialRecommendationsTable = pgTable(
 
 // Relations
 export const userRelations = relations(userTable, ({ one, many }) => ({
-  referredUsers: many(userTable, { relationName: "referredUsers" }),
-  referredBy: one(userTable, {
-    fields: [userTable.referredByUserId],
+  invitedUsers: many(userTable, { relationName: "invitedUsers" }),
+  invitedBy: one(userTable, {
+    fields: [userTable.invitedByUserId],
     references: [userTable.id],
-    relationName: "referredUsers",
+    relationName: "invitedUsers",
   }),
   mentee: one(menteeTable),
 }));
