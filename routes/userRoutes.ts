@@ -34,6 +34,7 @@ async function createOneUser(
   }
 }
 
+// Create one referred user
 async function createOneUserReferred(
   req: Request<unknown, {}, unknown>,
   res: Response
@@ -60,4 +61,18 @@ async function createOneUserReferred(
   }
 }
 
-export const userRoutes = { createOneUser, createOneUserReferred } as const;
+async function getAllUsers(req: Request, res: Response) {
+  try {
+    const users = await db.query.userTable.findMany();
+    res.send(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in create get all users");
+  }
+}
+
+export const userRoutes = {
+  createOneUser,
+  createOneUserReferred,
+  getAllUsers,
+} as const;

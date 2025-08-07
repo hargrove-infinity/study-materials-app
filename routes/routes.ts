@@ -9,6 +9,7 @@ import { userRoutes } from "./userRoutes";
 const userRouter = Router();
 userRouter.post(paths.users.base, userRoutes.createOneUser);
 userRouter.post(paths.users.referred, userRoutes.createOneUserReferred);
+userRouter.get(paths.users.base, userRoutes.getAllUsers);
 
 // Mentee router
 const menteeRouter = Router();
