@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { eq } from "drizzle-orm";
 import { db, userTable } from "../drizzle";
 import { queryParamsIdSchema, userDefSchema } from "../validation";
 
@@ -13,10 +14,20 @@ async function createOneUser(
     const body = req.body;
     const parsedBody = userDefSchema.parse(body);
 
-    const result = await db.insert(userTable).values(parsedBody).returning();
-    const user = result[0];
+    const fetchedUser = await db.query.userTable.findFirst({
+      where: eq(userTable.email, parsedBody.email),
+    });
 
-    res.status(201).send(user);
+    if (fetchedUser) {
+      res.status(409).send("User creation failed");
+      return;
+    }
+
+    const result = await db.insert(userTable).values(parsedBody).returning();
+    const createdUser = result[0];
+
+    res.status(201).send(createdUser);
+    res.send("OK");
   } catch (error) {
     console.error(error);
     res.status(500).send("Error in create one user");
