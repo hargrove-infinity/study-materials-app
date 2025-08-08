@@ -27,7 +27,6 @@ async function createOneUser(
     const createdUser = result[0];
 
     res.status(201).send(createdUser);
-    res.send("OK");
   } catch (error) {
     console.error(error);
     res.status(500).send("Error in create one user");
@@ -141,10 +140,43 @@ async function updateOneUser(
   }
 }
 
+// Delete one user
+async function deleteOneUser(
+  req: Request<unknown>,
+  res: Response
+): Promise<void> {
+  try {
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
+
+    const user = await db.query.userTable.findFirst({
+      where: eq(userTable.id, id),
+    });
+
+    if (!user) {
+      res.status(400).send(`User with provided id ${id} is not found`);
+      return;
+    }
+
+    const result = await db
+      .delete(userTable)
+      .where(eq(userTable.id, id))
+      .returning();
+
+    const deletedUser = result[0];
+    res.send(deletedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in deleting one user");
+  }
+}
+
 export const userRoutes = {
   createOneUser,
   createOneUserReferred,
   getAllUsers,
   getOneUser,
   updateOneUser,
+  deleteOneUser,
 } as const;

@@ -12,6 +12,7 @@ userRouter.post(paths.users.referred, userRoutes.createOneUserReferred);
 userRouter.get(paths.users.base, userRoutes.getAllUsers);
 userRouter.get(paths.users.id, userRoutes.getOneUser);
 userRouter.put(paths.users.id, userRoutes.updateOneUser);
+userRouter.delete(paths.users.id, userRoutes.deleteOneUser);
 
 // Mentee router
 const menteeRouter = Router();

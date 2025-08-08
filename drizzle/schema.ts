@@ -23,7 +23,8 @@ export const userTable = pgTable("user", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
   invitedByUserId: uuid("invited_by_user_id").references(
-    (): AnyPgColumn => userTable.id
+    (): AnyPgColumn => userTable.id,
+    { onDelete: "set null" }
   ),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
@@ -35,7 +36,7 @@ export const menteeTable = pgTable("mentee", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
     .notNull()
-    .references(() => userTable.id),
+    .references(() => userTable.id, { onDelete: "cascade" }),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -60,7 +61,7 @@ export const materialTable = pgTable("material", {
   type: materialType().notNull(),
   menteeId: uuid("mentee_id")
     .notNull()
-    .references(() => menteeTable.id),
+    .references(() => menteeTable.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
