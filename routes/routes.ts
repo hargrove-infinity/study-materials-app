@@ -17,6 +17,7 @@ userRouter.delete(paths.users.id, userRoutes.deleteOneUser);
 // Mentee router
 const menteeRouter = Router();
 menteeRouter.post(paths.mentees.base, menteeRoutes.createOneMentee);
+menteeRouter.get(paths.mentees.base, menteeRoutes.getAllMentees);
 
 // Category router
 const categoryRouter = Router();
