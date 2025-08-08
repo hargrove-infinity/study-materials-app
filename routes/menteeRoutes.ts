@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { db, menteeTable } from "../drizzle";
-import { menteeDefSchema } from "../validation";
+import { menteeDefSchema, queryParamsIdSchema } from "../validation";
+import { eq } from "drizzle-orm";
 
 // Mentees endpoints
 
@@ -34,4 +35,34 @@ async function getAllMentees(req: Request, res: Response): Promise<void> {
   }
 }
 
-export const menteeRoutes = { createOneMentee, getAllMentees } as const;
+// Get one mentee
+async function getOneMentee(
+  req: Request<unknown>,
+  res: Response
+): Promise<void> {
+  try {
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
+
+    const mentee = await db.query.menteeTable.findFirst({
+      where: eq(menteeTable.id, id),
+    });
+
+    if (!mentee) {
+      res.status(400).send(`Mentee with provided id ${id} is not found`);
+      return;
+    }
+
+    res.send(mentee);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in get one mentee");
+  }
+}
+
+export const menteeRoutes = {
+  createOneMentee,
+  getAllMentees,
+  getOneMentee,
+} as const;

@@ -5,7 +5,7 @@ export const paths = {
     referred: "/users/referred/:id",
     id: "/users/:id",
   },
-  mentees: { base: "/mentees" },
+  mentees: { base: "/mentees", id: "/mentees/:id" },
   categories: {
     base: "/categories",
     id: "/categories/:id",
