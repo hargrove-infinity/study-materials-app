@@ -98,7 +98,39 @@ async function updateOneMentee(
     res.send(updatedMentee);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error in get one mentee");
+    res.status(500).send("Error in update one mentee");
+  }
+}
+
+// Delete one mentee
+async function deleteOneMentee(
+  req: Request<unknown>,
+  res: Response
+): Promise<void> {
+  try {
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
+
+    const mentee = await db.query.menteeTable.findFirst({
+      where: eq(menteeTable.id, id),
+    });
+
+    if (!mentee) {
+      res.status(400).send(`Mentee with provided id ${id} is not found`);
+      return;
+    }
+
+    const result = await db
+      .delete(menteeTable)
+      .where(eq(menteeTable.id, id))
+      .returning();
+
+    const deletedMentee = result[0];
+    res.send(deletedMentee);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in delete one mentee");
   }
 }
 
@@ -107,4 +139,5 @@ export const menteeRoutes = {
   getAllMentees,
   getOneMentee,
   updateOneMentee,
+  deleteOneMentee,
 } as const;

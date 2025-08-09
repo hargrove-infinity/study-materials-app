@@ -20,6 +20,7 @@ menteeRouter.post(paths.mentees.base, menteeRoutes.createOneMentee);
 menteeRouter.get(paths.mentees.base, menteeRoutes.getAllMentees);
 menteeRouter.get(paths.mentees.id, menteeRoutes.getOneMentee);
 userRouter.put(paths.mentees.id, menteeRoutes.updateOneMentee);
+userRouter.delete(paths.mentees.id, menteeRoutes.deleteOneMentee);
 
 // Category router
 const categoryRouter = Router();
