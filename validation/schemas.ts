@@ -27,6 +27,11 @@ export const menteeDefSchema = z.object({
   userId: z.uuid().nonempty(),
 });
 
+export const menteeUpdateSchema = z.object({
+  firstName: z.string().nonempty().optional(),
+  lastName: z.string().nonempty().optional(),
+});
+
 // MaterialType
 const materialTypeSchema = z.enum(MaterialTypeEnum);
 

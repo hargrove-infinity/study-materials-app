@@ -19,6 +19,7 @@ const menteeRouter = Router();
 menteeRouter.post(paths.mentees.base, menteeRoutes.createOneMentee);
 menteeRouter.get(paths.mentees.base, menteeRoutes.getAllMentees);
 menteeRouter.get(paths.mentees.id, menteeRoutes.getOneMentee);
+userRouter.put(paths.mentees.id, menteeRoutes.updateOneMentee);
 
 // Category router
 const categoryRouter = Router();

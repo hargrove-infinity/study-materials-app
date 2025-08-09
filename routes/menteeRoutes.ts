@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
-import { db, menteeTable } from "../drizzle";
-import { menteeDefSchema, queryParamsIdSchema } from "../validation";
 import { eq } from "drizzle-orm";
+import { db, menteeTable } from "../drizzle";
+import {
+  menteeDefSchema,
+  menteeUpdateSchema,
+  queryParamsIdSchema,
+} from "../validation";
 
 // Mentees endpoints
 
@@ -61,8 +65,46 @@ async function getOneMentee(
   }
 }
 
+// Update one mentee
+async function updateOneMentee(
+  req: Request<unknown, {}, unknown>,
+  res: Response
+): Promise<void> {
+  try {
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
+
+    const mentee = await db.query.menteeTable.findFirst({
+      where: eq(menteeTable.id, id),
+    });
+
+    if (!mentee) {
+      res.status(400).send(`Mentee with provided id ${id} is not found`);
+      return;
+    }
+
+    const body = req.body;
+    const parsedBody = menteeUpdateSchema.parse(body);
+
+    const result = await db
+      .update(menteeTable)
+      .set(parsedBody)
+      .where(eq(menteeTable.id, id))
+      .returning();
+
+    const updatedMentee = result[0];
+
+    res.send(updatedMentee);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in get one mentee");
+  }
+}
+
 export const menteeRoutes = {
   createOneMentee,
   getAllMentees,
   getOneMentee,
+  updateOneMentee,
 } as const;
