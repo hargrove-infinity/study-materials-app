@@ -18,6 +18,15 @@ async function createOneMentee(
     const body = req.body;
     const parsedBody = menteeDefSchema.parse(body);
 
+    const existingMentee = await db.query.menteeTable.findFirst({
+      where: (mentee, { eq }) => eq(mentee.userId, parsedBody.userId),
+    });
+
+    if (existingMentee) {
+      res.status(409).send("User already has a mentee assigned.");
+      return;
+    }
+
     const result = await db.insert(menteeTable).values(parsedBody).returning();
     const mentee = result[0];
 
