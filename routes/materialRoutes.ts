@@ -7,6 +7,7 @@ import {
   queryParamsIdSchema,
 } from "../validation";
 import { db, materialTable, materialCategoriesTable } from "../drizzle";
+import { recursivelyCreateRecommendedMaterial } from "../utils";
 
 // Materials endpoints
 
@@ -30,6 +31,13 @@ async function createOneMaterial(
       await db
         .insert(materialCategoriesTable)
         .values({ materialId: material.id, categoryId });
+    }
+
+    if (parsedBody.recommendedMaterials?.length) {
+      await recursivelyCreateRecommendedMaterial(
+        material.id,
+        parsedBody.recommendedMaterials
+      );
     }
 
     res.send(material);

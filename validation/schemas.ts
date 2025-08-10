@@ -58,9 +58,20 @@ const materialBaseSchema = z.object({
 });
 
 // Material request body
-export const materialDefSchema = materialBaseSchema.extend({
+interface MaterialDefSchema {
+  url: string;
+  type: MaterialTypeEnum;
+  menteeId: string;
+  categoryIds: string[];
+  recommendedMaterials?: MaterialDefSchema[];
+}
+
+export let materialDefSchema: z.ZodType<MaterialDefSchema>;
+
+materialDefSchema = materialBaseSchema.extend({
   menteeId: z.uuid(),
   categoryIds: z.string().array(),
+  recommendedMaterials: z.lazy(() => materialDefSchema.array().optional()),
 });
 
 // Material request body for put
