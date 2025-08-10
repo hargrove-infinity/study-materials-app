@@ -60,12 +60,12 @@ const materialBaseSchema = z.object({
 // Material request body
 export const recommendedMaterialDefSchema = materialBaseSchema.extend({
   menteeId: z.uuid(),
-  categoryIds: z.string().array(),
+  categoryIds: z.uuid().array(),
 });
 
 export const materialDefSchema = materialBaseSchema.extend({
   menteeId: z.uuid(),
-  categoryIds: z.string().array(),
+  categoryIds: z.uuid().array(),
   existingRecommendedMaterialIds: z.uuid().array().optional(),
   newRecommendedMaterials: z.lazy(() =>
     recommendedMaterialDefSchema.array().optional()
@@ -76,5 +76,5 @@ export const materialDefSchema = materialBaseSchema.extend({
 export const materialUpdateSchema = z.object({
   url: z.url().optional(),
   type: materialTypeSchema.optional(),
-  categoryIds: z.string().array().optional(),
+  categoryIds: z.uuid().array().optional(),
 });
