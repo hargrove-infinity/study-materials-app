@@ -6,7 +6,7 @@ import {
   materialRecommendationsTable,
 } from "../drizzle";
 
-export async function createRecommendedMaterials(
+export async function createNewRecommendedMaterials(
   materialId: string,
   recommendedMaterials: unknown[]
 ): Promise<void> {

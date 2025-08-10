@@ -1,2 +1,2 @@
 export * from "./createExistingRecommendedMaterials";
-export * from "./createRecommendedMaterials";
+export * from "./createNewRecommendedMaterials";

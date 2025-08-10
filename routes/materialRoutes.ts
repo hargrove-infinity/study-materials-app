@@ -6,15 +6,10 @@ import {
   materialUpdateSchema,
   queryParamsIdSchema,
 } from "../validation";
-import {
-  db,
-  materialTable,
-  materialCategoriesTable,
-  materialRecommendationsTable,
-} from "../drizzle";
+import { db, materialTable, materialCategoriesTable } from "../drizzle";
 import {
   createExistingRecommendedMaterials,
-  createRecommendedMaterials,
+  createNewRecommendedMaterials,
 } from "../utils";
 
 // Materials endpoints
@@ -42,7 +37,7 @@ async function createOneMaterial(
     }
 
     if (parsedBody.newRecommendedMaterials?.length) {
-      await createRecommendedMaterials(
+      await createNewRecommendedMaterials(
         material.id,
         parsedBody.newRecommendedMaterials
       );
