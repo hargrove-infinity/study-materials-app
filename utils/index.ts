@@ -1,1 +1,1 @@
-export * from "./recursivelyCreateRecommendedMaterial";
+export * from "./createRecommendedMaterials";

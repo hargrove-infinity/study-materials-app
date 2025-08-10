@@ -1,4 +1,4 @@
-import { materialDefSchema } from "../validation";
+import { recommendedMaterialDefSchema } from "../validation";
 import {
   db,
   materialTable,
@@ -6,13 +6,13 @@ import {
   materialRecommendationsTable,
 } from "../drizzle";
 
-export async function recursivelyCreateRecommendedMaterial(
+export async function createRecommendedMaterials(
   materialId: string,
   recommendedMaterials: unknown[]
 ): Promise<void> {
   for (const recommendedMaterial of recommendedMaterials) {
     const parsedRecommendedMaterial =
-      materialDefSchema.parse(recommendedMaterial);
+      recommendedMaterialDefSchema.parse(recommendedMaterial);
 
     const result = await db
       .insert(materialTable)
@@ -31,12 +31,5 @@ export async function recursivelyCreateRecommendedMaterial(
       materialId,
       recommendedMaterialId: createdRecommendedMaterial.id,
     });
-
-    if (parsedRecommendedMaterial.recommendedMaterials?.length) {
-      recursivelyCreateRecommendedMaterial(
-        createdRecommendedMaterial.id,
-        parsedRecommendedMaterial.recommendedMaterials
-      );
-    }
   }
 }

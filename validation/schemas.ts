@@ -58,20 +58,18 @@ const materialBaseSchema = z.object({
 });
 
 // Material request body
-interface MaterialDefSchema {
-  url: string;
-  type: MaterialTypeEnum;
-  menteeId: string;
-  categoryIds: string[];
-  recommendedMaterials?: MaterialDefSchema[];
-}
-
-export let materialDefSchema: z.ZodType<MaterialDefSchema>;
-
-materialDefSchema = materialBaseSchema.extend({
+export const recommendedMaterialDefSchema = materialBaseSchema.extend({
   menteeId: z.uuid(),
   categoryIds: z.string().array(),
-  recommendedMaterials: z.lazy(() => materialDefSchema.array().optional()),
+});
+
+export const materialDefSchema = materialBaseSchema.extend({
+  menteeId: z.uuid(),
+  categoryIds: z.string().array(),
+  existingRecommendedMaterialIds: z.uuid().array().optional(),
+  newRecommendedMaterials: z.lazy(() =>
+    recommendedMaterialDefSchema.array().optional()
+  ),
 });
 
 // Material request body for put

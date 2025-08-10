@@ -7,7 +7,7 @@ import {
   queryParamsIdSchema,
 } from "../validation";
 import { db, materialTable, materialCategoriesTable } from "../drizzle";
-import { recursivelyCreateRecommendedMaterial } from "../utils";
+import { createRecommendedMaterials } from "../utils";
 
 // Materials endpoints
 
@@ -33,10 +33,10 @@ async function createOneMaterial(
         .values({ materialId: material.id, categoryId });
     }
 
-    if (parsedBody.recommendedMaterials?.length) {
-      await recursivelyCreateRecommendedMaterial(
+    if (parsedBody.newRecommendedMaterials?.length) {
+      await createRecommendedMaterials(
         material.id,
-        parsedBody.recommendedMaterials
+        parsedBody.newRecommendedMaterials
       );
     }
 
