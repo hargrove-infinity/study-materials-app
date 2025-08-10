@@ -50,7 +50,7 @@ async function createOneMaterial(
       );
     }
 
-    res.send(material);
+    res.status(201).send(material);
   } catch (error) {
     console.error(error);
 
