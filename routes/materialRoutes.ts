@@ -164,7 +164,12 @@ async function updateOneMaterial(
     const body = req.body;
     const parsedBody = materialUpdateSchema.parse(body);
 
-    const { categoryIds, ...restParsedBody } = parsedBody;
+    const {
+      categoryIds,
+      existingRecommendedMaterialIds,
+      newRecommendedMaterials,
+      ...restParsedBody
+    } = parsedBody;
 
     const result = await db
       .update(materialTable)
