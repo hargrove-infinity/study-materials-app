@@ -10,6 +10,7 @@ import { db, materialTable, materialCategoriesTable } from "../drizzle";
 import {
   createExistingRecommendedMaterials,
   createNewRecommendedMaterials,
+  deleteExistingRecommendedMaterials,
   updateMaterialCategories,
 } from "../utils";
 
@@ -166,7 +167,8 @@ async function updateOneMaterial(
 
     const {
       categoryIds,
-      existingRecommendedMaterialIds,
+      existingRecommendedMaterialIdsToAdd,
+      existingRecommendedMaterialIdsToRemove,
       newRecommendedMaterials,
       ...restParsedBody
     } = parsedBody;
@@ -186,6 +188,23 @@ async function updateOneMaterial(
 
     if (categoryIds) {
       await updateMaterialCategories(id, categoryIds);
+    }
+
+    if (existingRecommendedMaterialIdsToAdd?.length) {
+      await createExistingRecommendedMaterials(
+        id,
+        existingRecommendedMaterialIdsToAdd
+      );
+    }
+
+    if (existingRecommendedMaterialIdsToRemove?.length) {
+      await deleteExistingRecommendedMaterials(
+        existingRecommendedMaterialIdsToRemove
+      );
+    }
+
+    if (newRecommendedMaterials?.length) {
+      await createNewRecommendedMaterials(id, newRecommendedMaterials);
     }
 
     res.send(updatedMaterial);

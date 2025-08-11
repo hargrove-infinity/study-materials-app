@@ -77,7 +77,8 @@ export const materialUpdateSchema = z.object({
   url: z.url().optional(),
   type: materialTypeSchema.optional(),
   categoryIds: z.uuid().array().optional(),
-  existingRecommendedMaterialIds: z.uuid().array().optional(),
+  existingRecommendedMaterialIdsToAdd: z.uuid().array().optional(),
+  existingRecommendedMaterialIdsToRemove: z.uuid().array().optional(),
   newRecommendedMaterials: z.lazy(() =>
     recommendedMaterialDefSchema.array().optional()
   ),
