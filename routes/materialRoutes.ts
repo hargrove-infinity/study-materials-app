@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { ZodError } from "zod";
 import {
   materialDefSchema,
@@ -10,6 +10,7 @@ import { db, materialTable, materialCategoriesTable } from "../drizzle";
 import {
   createExistingRecommendedMaterials,
   createNewRecommendedMaterials,
+  updateMaterialCategories,
 } from "../utils";
 
 // Materials endpoints
@@ -179,37 +180,7 @@ async function updateOneMaterial(
     }
 
     if (categoryIds) {
-      const existingCategories = await db
-        .select({ categoryId: materialCategoriesTable.categoryId })
-        .from(materialCategoriesTable)
-        .where(eq(materialCategoriesTable.materialId, id));
-
-      const existingCategoryIds = existingCategories.map(
-        (category) => category.categoryId
-      );
-
-      const outdatedCategoryIds = existingCategoryIds.filter(
-        (categoryId) => !categoryIds.includes(categoryId)
-      );
-
-      if (outdatedCategoryIds.length) {
-        await db
-          .delete(materialCategoriesTable)
-          .where(
-            and(
-              eq(materialCategoriesTable.materialId, id),
-              inArray(materialCategoriesTable.categoryId, outdatedCategoryIds)
-            )
-          );
-      }
-
-      const newCategoryIds = categoryIds
-        .filter((categoryId) => !existingCategoryIds.includes(categoryId))
-        .map((categoryId) => ({ materialId: id, categoryId }));
-
-      if (newCategoryIds.length) {
-        await db.insert(materialCategoriesTable).values(newCategoryIds);
-      }
+      await updateMaterialCategories(id, categoryIds);
     }
 
     res.send(updatedMaterial);
