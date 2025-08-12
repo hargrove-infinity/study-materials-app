@@ -159,13 +159,9 @@ async function deleteOneUser(
       return;
     }
 
-    const result = await db
-      .delete(userTable)
-      .where(eq(userTable.id, id))
-      .returning();
+    await db.delete(userTable).where(eq(userTable.id, id)).returning();
 
-    const deletedUser = result[0];
-    res.send(deletedUser);
+    res.send("User successfully deleted");
   } catch (error) {
     console.error(error);
     res.status(500).send("Error in deleting one user");

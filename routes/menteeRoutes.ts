@@ -130,13 +130,9 @@ async function deleteOneMentee(
       return;
     }
 
-    const result = await db
-      .delete(menteeTable)
-      .where(eq(menteeTable.id, id))
-      .returning();
+    await db.delete(menteeTable).where(eq(menteeTable.id, id)).returning();
 
-    const deletedMentee = result[0];
-    res.send(deletedMentee);
+    res.send("Mentee successfully deleted");
   } catch (error) {
     console.error(error);
     res.status(500).send("Error in delete one mentee");

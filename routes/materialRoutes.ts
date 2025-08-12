@@ -236,7 +236,7 @@ async function deleteOneMaterial(
       return;
     }
 
-    res.send(material);
+    res.send("Material successfully deleted");
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in delete material");

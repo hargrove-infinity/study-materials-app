@@ -130,7 +130,7 @@ async function deleteOneCategory(
       return;
     }
 
-    res.send(category);
+    res.send("Category successfully deleted");
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in delete one category");
