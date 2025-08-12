@@ -1,4 +1,4 @@
 export * from "./createExistingRecommendedMaterials";
-export * from "./createNewRecommendedMaterials";
+export * from "./createNewRecommendedMaterial";
 export * from "./deleteExistingRecommendedMaterials";
 export * from "./updateMaterialCategories";

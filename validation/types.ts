@@ -4,6 +4,7 @@ import {
   categoryUpdateSchema,
   materialDefSchema,
   materialUpdateSchema,
+  recommendedMaterialDefSchema,
 } from "./schemas";
 
 /* TYPES FROM VALIDATION SCHEMAS */
@@ -17,3 +18,7 @@ export type CategoryUpdate = z.infer<typeof categoryUpdateSchema>;
 export type MaterialDef = z.infer<typeof materialDefSchema>;
 
 export type MaterialUpdate = z.infer<typeof materialUpdateSchema>;
+
+export type RecommendedMaterialDef = z.infer<
+  typeof recommendedMaterialDefSchema
+>;
