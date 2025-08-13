@@ -5,12 +5,11 @@ import {
   materialDefSchema,
   materialUpdateSchema,
   queryParamsIdSchema,
-  recommendedMaterialDefSchema,
 } from "../validation";
 import { db, materialTable, materialCategoriesTable } from "../drizzle";
 import {
   createExistingRecommendedMaterials,
-  createNewRecommendedMaterial,
+  createNewRecommendedMaterials,
   deleteExistingRecommendedMaterials,
   updateMaterialCategories,
 } from "../utils";
@@ -40,15 +39,10 @@ async function createOneMaterial(
     }
 
     if (parsedBody.newRecommendedMaterials?.length) {
-      for (const recommendedMaterial of parsedBody.newRecommendedMaterials) {
-        const parsedRecommendedMaterial =
-          recommendedMaterialDefSchema.parse(recommendedMaterial);
-
-        await createNewRecommendedMaterial(
-          material.id,
-          parsedRecommendedMaterial
-        );
-      }
+      await createNewRecommendedMaterials(
+        material.id,
+        parsedBody.newRecommendedMaterials
+      );
     }
 
     if (parsedBody.existingRecommendedMaterialIds?.length) {
@@ -210,13 +204,7 @@ async function updateOneMaterial(
     }
 
     if (newRecommendedMaterials?.length) {
-      for (const newRecommendedMaterial of newRecommendedMaterials) {
-        const parsedNewRecommendedMaterial = recommendedMaterialDefSchema.parse(
-          newRecommendedMaterial
-        );
-
-        await createNewRecommendedMaterial(id, parsedNewRecommendedMaterial);
-      }
+      await createNewRecommendedMaterials(id, newRecommendedMaterials);
     }
 
     res.send(updatedMaterial);
