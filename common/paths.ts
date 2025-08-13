@@ -1,5 +1,11 @@
 export const paths = {
   catchAll: "/{*splat}",
+  users: {
+    base: "/users",
+    referred: "/users/referred/:id",
+    id: "/users/:id",
+  },
+  mentees: { base: "/mentees", id: "/mentees/:id" },
   categories: {
     base: "/categories",
     id: "/categories/:id",

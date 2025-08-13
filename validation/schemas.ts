@@ -15,6 +15,23 @@ export const envSchema = z.object({
 // Query Params Id
 export const queryParamsIdSchema = z.object({ id: z.uuid() });
 
+// Users
+export const userDefSchema = z.object({
+  email: z.email().nonempty(),
+});
+
+// Mentees
+export const menteeDefSchema = z.object({
+  firstName: z.string().nonempty(),
+  lastName: z.string().nonempty(),
+  userId: z.uuid().nonempty(),
+});
+
+export const menteeUpdateSchema = z.object({
+  firstName: z.string().nonempty().optional(),
+  lastName: z.string().nonempty().optional(),
+});
+
 // MaterialType
 const materialTypeSchema = z.enum(MaterialTypeEnum);
 
@@ -41,13 +58,28 @@ const materialBaseSchema = z.object({
 });
 
 // Material request body
+export const recommendedMaterialDefSchema = materialBaseSchema.extend({
+  menteeId: z.uuid(),
+  categoryIds: z.uuid().array(),
+});
+
 export const materialDefSchema = materialBaseSchema.extend({
-  categoryIds: z.string().array(),
+  menteeId: z.uuid(),
+  categoryIds: z.uuid().array(),
+  existingRecommendedMaterialIds: z.uuid().array().optional(),
+  newRecommendedMaterials: z.lazy(() =>
+    recommendedMaterialDefSchema.array().optional()
+  ),
 });
 
 // Material request body for put
 export const materialUpdateSchema = z.object({
   url: z.url().optional(),
   type: materialTypeSchema.optional(),
-  categoryIds: z.string().array().optional(),
+  categoryIds: z.uuid().array().optional(),
+  existingRecommendedMaterialIdsToAdd: z.uuid().array().optional(),
+  existingRecommendedMaterialIdsToRemove: z.uuid().array().optional(),
+  newRecommendedMaterials: z.lazy(() =>
+    recommendedMaterialDefSchema.array().optional()
+  ),
 });

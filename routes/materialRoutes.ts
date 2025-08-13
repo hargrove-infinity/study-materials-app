@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { ZodError } from "zod";
 import {
   materialDefSchema,
@@ -7,6 +7,12 @@ import {
   queryParamsIdSchema,
 } from "../validation";
 import { db, materialTable, materialCategoriesTable } from "../drizzle";
+import {
+  createExistingRecommendedMaterials,
+  createNewRecommendedMaterials,
+  deleteExistingRecommendedMaterials,
+  updateMaterialCategories,
+} from "../utils";
 
 // Materials endpoints
 
@@ -32,7 +38,21 @@ async function createOneMaterial(
         .values({ materialId: material.id, categoryId });
     }
 
-    res.send(material);
+    if (parsedBody.newRecommendedMaterials?.length) {
+      await createNewRecommendedMaterials(
+        material.id,
+        parsedBody.newRecommendedMaterials
+      );
+    }
+
+    if (parsedBody.existingRecommendedMaterialIds?.length) {
+      await createExistingRecommendedMaterials(
+        material.id,
+        parsedBody.existingRecommendedMaterialIds
+      );
+    }
+
+    res.status(201).send(material);
   } catch (error) {
     console.error(error);
 
@@ -145,7 +165,13 @@ async function updateOneMaterial(
     const body = req.body;
     const parsedBody = materialUpdateSchema.parse(body);
 
-    const { categoryIds, ...restParsedBody } = parsedBody;
+    const {
+      categoryIds,
+      existingRecommendedMaterialIdsToAdd,
+      existingRecommendedMaterialIdsToRemove,
+      newRecommendedMaterials,
+      ...restParsedBody
+    } = parsedBody;
 
     const result = await db
       .update(materialTable)
@@ -161,37 +187,24 @@ async function updateOneMaterial(
     }
 
     if (categoryIds) {
-      const existingCategories = await db
-        .select({ categoryId: materialCategoriesTable.categoryId })
-        .from(materialCategoriesTable)
-        .where(eq(materialCategoriesTable.materialId, id));
+      await updateMaterialCategories(id, categoryIds);
+    }
 
-      const existingCategoryIds = existingCategories.map(
-        (category) => category.categoryId
+    if (existingRecommendedMaterialIdsToAdd?.length) {
+      await createExistingRecommendedMaterials(
+        id,
+        existingRecommendedMaterialIdsToAdd
       );
+    }
 
-      const outdatedCategoryIds = existingCategoryIds.filter(
-        (categoryId) => !categoryIds.includes(categoryId)
+    if (existingRecommendedMaterialIdsToRemove?.length) {
+      await deleteExistingRecommendedMaterials(
+        existingRecommendedMaterialIdsToRemove
       );
+    }
 
-      if (outdatedCategoryIds.length) {
-        await db
-          .delete(materialCategoriesTable)
-          .where(
-            and(
-              eq(materialCategoriesTable.materialId, id),
-              inArray(materialCategoriesTable.categoryId, outdatedCategoryIds)
-            )
-          );
-      }
-
-      const newCategoryIds = categoryIds
-        .filter((categoryId) => !existingCategoryIds.includes(categoryId))
-        .map((categoryId) => ({ materialId: id, categoryId }));
-
-      if (newCategoryIds.length) {
-        await db.insert(materialCategoriesTable).values(newCategoryIds);
-      }
+    if (newRecommendedMaterials?.length) {
+      await createNewRecommendedMaterials(id, newRecommendedMaterials);
     }
 
     res.send(updatedMaterial);
@@ -223,7 +236,7 @@ async function deleteOneMaterial(
       return;
     }
 
-    res.send(material);
+    res.send("Material successfully deleted");
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in delete material");
