@@ -5,13 +5,17 @@ import {
   materialRecommendationsTable,
 } from "../drizzle";
 import { RecommendedMaterialDef } from "../validation";
+import { TransactionType } from "../types";
 
 export async function createNewRecommendedMaterials(
   materialId: string,
-  recommendedMaterials: RecommendedMaterialDef[]
+  recommendedMaterials: RecommendedMaterialDef[],
+  tx?: TransactionType
 ): Promise<void> {
+  const dbClient = tx || db;
+
   for (const recommendedMaterial of recommendedMaterials) {
-    const result = await db
+    const result = await dbClient
       .insert(materialTable)
       .values(recommendedMaterial)
       .returning();
@@ -19,12 +23,12 @@ export async function createNewRecommendedMaterials(
     const createdRecommendedMaterial = result[0];
 
     for (const categoryId of recommendedMaterial.categoryIds) {
-      await db
+      await dbClient
         .insert(materialCategoriesTable)
         .values({ materialId: createdRecommendedMaterial.id, categoryId });
     }
 
-    await db.insert(materialRecommendationsTable).values({
+    await dbClient.insert(materialRecommendationsTable).values({
       materialId,
       recommendedMaterialId: createdRecommendedMaterial.id,
     });
