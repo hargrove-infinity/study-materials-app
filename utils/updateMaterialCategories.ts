@@ -1,10 +1,18 @@
 import { and, eq, inArray } from "drizzle-orm";
-import { db, materialCategoriesTable } from "../drizzle";
+import { categoryTable, db, materialCategoriesTable } from "../drizzle";
 
 export async function updateMaterialCategories(
   materialId: string,
   categoryIds: string[]
 ): Promise<void> {
+  const checkedCategoryIds = await db.query.categoryTable.findMany({
+    where: inArray(categoryTable.id, categoryIds),
+  });
+
+  if (checkedCategoryIds.length !== categoryIds.length) {
+    throw new Error("Some of the provided category ids are invalid");
+  }
+
   const existingCategories = await db
     .select({ categoryId: materialCategoriesTable.categoryId })
     .from(materialCategoriesTable)
