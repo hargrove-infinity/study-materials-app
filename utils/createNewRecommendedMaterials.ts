@@ -1,11 +1,7 @@
-import {
-  db,
-  materialTable,
-  materialCategoriesTable,
-  materialRecommendationsTable,
-} from "../drizzle";
+import { db, materialTable, materialRecommendationsTable } from "../drizzle";
 import { RecommendedMaterialDef } from "../validation";
 import { TransactionType } from "../types";
+import { linkMaterialCategories } from "./linkMaterialCategories";
 
 export async function createNewRecommendedMaterials(
   materialId: string,
@@ -22,11 +18,11 @@ export async function createNewRecommendedMaterials(
 
     const createdRecommendedMaterial = result[0];
 
-    for (const categoryId of recommendedMaterial.categoryIds) {
-      await dbClient
-        .insert(materialCategoriesTable)
-        .values({ materialId: createdRecommendedMaterial.id, categoryId });
-    }
+    await linkMaterialCategories(
+      createdRecommendedMaterial.id,
+      recommendedMaterial.categoryIds,
+      dbClient
+    );
 
     await dbClient.insert(materialRecommendationsTable).values({
       materialId,

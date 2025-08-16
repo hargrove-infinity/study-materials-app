@@ -11,6 +11,7 @@ import {
   createExistingRecommendedMaterials,
   createNewRecommendedMaterials,
   deleteExistingRecommendedMaterials,
+  linkMaterialCategories,
   updateMaterialCategories,
 } from "../utils";
 
@@ -33,11 +34,7 @@ async function createOneMaterial(
 
       const material = result[0];
 
-      for (const categoryId of parsedBody.categoryIds) {
-        await tx
-          .insert(materialCategoriesTable)
-          .values({ materialId: material.id, categoryId });
-      }
+      await linkMaterialCategories(material.id, parsedBody.categoryIds, tx);
 
       if (parsedBody.newRecommendedMaterials?.length) {
         await createNewRecommendedMaterials(
