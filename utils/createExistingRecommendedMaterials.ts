@@ -18,7 +18,9 @@ export async function createExistingRecommendedMaterials(
     existingRecommendedMaterials.length !==
     existingRecommendedMaterialIds.length
   ) {
-    throw new Error("Some of the provided material ids are invalid");
+    throw new Error(
+      "Some of the provided existing recommended material ids are invalid"
+    );
   }
 
   if (existingRecommendedMaterials.length) {
