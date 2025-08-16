@@ -176,39 +176,45 @@ async function updateOneMaterial(
       ...restParsedBody
     } = parsedBody;
 
-    const result = await db
-      .update(materialTable)
-      .set(restParsedBody)
-      .where(eq(materialTable.id, id))
-      .returning();
+    const updatedMaterial = await db.transaction(async (tx) => {
+      const result = await tx
+        .update(materialTable)
+        .set(restParsedBody)
+        .where(eq(materialTable.id, id))
+        .returning();
 
-    const updatedMaterial = result[0];
+      const material = result[0];
 
-    if (!updatedMaterial) {
-      res.status(404).send(`Material with provided ${id} is not found`);
-      return;
-    }
+      if (!material) {
+        res.status(404).send(`Material with provided ${id} is not found`);
+        return;
+      }
 
-    if (categoryIds) {
-      await updateMaterialCategories(id, categoryIds);
-    }
+      if (categoryIds) {
+        await updateMaterialCategories(id, categoryIds, tx);
+      }
 
-    if (existingRecommendedMaterialIdsToAdd?.length) {
-      await createExistingRecommendedMaterials(
-        id,
-        existingRecommendedMaterialIdsToAdd
-      );
-    }
+      if (existingRecommendedMaterialIdsToAdd?.length) {
+        await createExistingRecommendedMaterials(
+          id,
+          existingRecommendedMaterialIdsToAdd,
+          tx
+        );
+      }
 
-    if (existingRecommendedMaterialIdsToRemove?.length) {
-      await deleteExistingRecommendedMaterials(
-        existingRecommendedMaterialIdsToRemove
-      );
-    }
+      if (existingRecommendedMaterialIdsToRemove?.length) {
+        await deleteExistingRecommendedMaterials(
+          existingRecommendedMaterialIdsToRemove,
+          tx
+        );
+      }
 
-    if (newRecommendedMaterials?.length) {
-      await createNewRecommendedMaterials(id, newRecommendedMaterials);
-    }
+      if (newRecommendedMaterials?.length) {
+        await createNewRecommendedMaterials(id, newRecommendedMaterials, tx);
+      }
+
+      return material;
+    });
 
     res.send(updatedMaterial);
   } catch (error) {

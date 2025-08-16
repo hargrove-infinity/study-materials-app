@@ -19,7 +19,7 @@ export async function createExistingRecommendedMaterials(
     existingRecommendedMaterialIds.length
   ) {
     throw new Error(
-      "Some of the provided existing recommended material ids are invalid"
+      "Some of the provided existing recommended material ids for adding are invalid"
     );
   }
 
