@@ -1,11 +1,23 @@
 import { and, eq, inArray } from "drizzle-orm";
-import { db, materialCategoriesTable } from "../drizzle";
+import { categoryTable, db, materialCategoriesTable } from "../drizzle";
+import { TransactionType } from "../types";
 
 export async function updateMaterialCategories(
   materialId: string,
-  categoryIds: string[]
+  categoryIds: string[],
+  tx?: TransactionType
 ): Promise<void> {
-  const existingCategories = await db
+  const dbClient = tx || db;
+
+  const checkedCategoryIds = await dbClient.query.categoryTable.findMany({
+    where: inArray(categoryTable.id, categoryIds),
+  });
+
+  if (checkedCategoryIds.length !== categoryIds.length) {
+    throw new Error("Some of the provided category ids are invalid");
+  }
+
+  const existingCategories = await dbClient
     .select({ categoryId: materialCategoriesTable.categoryId })
     .from(materialCategoriesTable)
     .where(eq(materialCategoriesTable.materialId, materialId));
@@ -19,7 +31,7 @@ export async function updateMaterialCategories(
   );
 
   if (outdatedCategoryIds.length) {
-    await db
+    await dbClient
       .delete(materialCategoriesTable)
       .where(
         and(
@@ -34,6 +46,6 @@ export async function updateMaterialCategories(
     .map((categoryId) => ({ materialId, categoryId }));
 
   if (newCategoryIds.length) {
-    await db.insert(materialCategoriesTable).values(newCategoryIds);
+    await dbClient.insert(materialCategoriesTable).values(newCategoryIds);
   }
 }
