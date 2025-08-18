@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { MaterialTypeEnum } from "../types";
+import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
+import {
+  categoryTable,
+  materialTable,
+  menteeTable,
+  userTable,
+} from "../drizzle";
 
 /* VALIDATION SCHEMAS */
 
@@ -16,55 +22,26 @@ export const envSchema = z.object({
 export const queryParamsIdSchema = z.object({ id: z.uuid() });
 
 // Users
-export const userDefSchema = z.object({
-  email: z.email().nonempty(),
-});
+export const userInsertSchema = createInsertSchema(userTable);
+export const userUpdateSchema = createUpdateSchema(userTable);
 
 // Mentees
-export const menteeDefSchema = z.object({
-  firstName: z.string().nonempty(),
-  lastName: z.string().nonempty(),
-  userId: z.uuid().nonempty(),
-});
-
-export const menteeUpdateSchema = z.object({
-  firstName: z.string().nonempty().optional(),
-  lastName: z.string().nonempty().optional(),
-});
-
-// MaterialType
-const materialTypeSchema = z.enum(MaterialTypeEnum);
+export const menteeInsertSchema = createInsertSchema(menteeTable);
+export const menteeUpdateSchema = createUpdateSchema(menteeTable);
 
 // Categories
-
-// Category request body
-export const categoryDefSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-});
-
-// Category request body for put
-export const categoryUpdateSchema = z.object({
-  name: z.string().optional(),
-  description: z.string().optional(),
-});
+export const categoryInsertSchema = createInsertSchema(categoryTable);
+export const categoryUpdateSchema = createUpdateSchema(categoryTable);
 
 // Materials
+export const materialInsertSchema = createInsertSchema(materialTable);
+export const materialUpdateSchema = createUpdateSchema(materialTable);
 
-// Material base schema
-const materialBaseSchema = z.object({
-  url: z.url(),
-  type: materialTypeSchema,
-});
-
-// Material request body
-export const recommendedMaterialDefSchema = materialBaseSchema.extend({
-  menteeId: z.uuid(),
+export const recommendedMaterialDefSchema = materialInsertSchema.extend({
   categoryIds: z.uuid().array(),
 });
 
-export const materialDefSchema = materialBaseSchema.extend({
-  menteeId: z.uuid(),
+export const materialDefSchema = materialInsertSchema.extend({
   categoryIds: z.uuid().array(),
   existingRecommendedMaterialIds: z.uuid().array().optional(),
   newRecommendedMaterials: z.lazy(() =>
@@ -72,10 +49,7 @@ export const materialDefSchema = materialBaseSchema.extend({
   ),
 });
 
-// Material request body for put
-export const materialUpdateSchema = z.object({
-  url: z.url().optional(),
-  type: materialTypeSchema.optional(),
+export const materialUpdateExtendedSchema = materialUpdateSchema.extend({
   categoryIds: z.uuid().array().optional(),
   existingRecommendedMaterialIdsToAdd: z.uuid().array().optional(),
   existingRecommendedMaterialIdsToRemove: z.uuid().array().optional(),

@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { ZodError } from "zod";
 import {
   materialDefSchema,
-  materialUpdateSchema,
+  materialUpdateExtendedSchema,
   queryParamsIdSchema,
 } from "../validation";
 import { db, materialTable, materialCategoriesTable } from "../drizzle";
@@ -166,7 +166,7 @@ async function updateOneMaterial(
     const { id } = parsedParams;
 
     const body = req.body;
-    const parsedBody = materialUpdateSchema.parse(body);
+    const parsedBody = materialUpdateExtendedSchema.parse(body);
 
     const {
       categoryIds,

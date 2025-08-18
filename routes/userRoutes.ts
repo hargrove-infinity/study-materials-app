@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
 import { eq } from "drizzle-orm";
 import { db, userTable } from "../drizzle";
-import { queryParamsIdSchema, userDefSchema } from "../validation";
+import {
+  queryParamsIdSchema,
+  userInsertSchema,
+  userUpdateSchema,
+} from "../validation";
 
 // Users endpoints
 
@@ -12,7 +16,7 @@ async function createOneUser(
 ): Promise<void> {
   try {
     const body = req.body;
-    const parsedBody = userDefSchema.parse(body);
+    const parsedBody = userInsertSchema.parse(body);
 
     const fetchedUser = await db.query.userTable.findFirst({
       where: eq(userTable.email, parsedBody.email),
@@ -44,7 +48,7 @@ async function createOneUserReferred(
     const { id } = parsedParams;
 
     const body = req.body;
-    const parsedBody = userDefSchema.parse(body);
+    const parsedBody = userInsertSchema.parse(body);
 
     const result = await db
       .insert(userTable)
@@ -114,15 +118,17 @@ async function updateOneUser(
     }
 
     const body = req.body;
-    const parsedBody = userDefSchema.parse(body);
+    const parsedBody = userUpdateSchema.parse(body);
 
-    const fetchedUserByEmail = await db.query.userTable.findFirst({
-      where: eq(userTable.email, parsedBody.email),
-    });
+    if (parsedBody.email) {
+      const fetchedUserByEmail = await db.query.userTable.findFirst({
+        where: eq(userTable.email, parsedBody.email),
+      });
 
-    if (fetchedUserByEmail) {
-      res.status(409).send("User can not update email");
-      return;
+      if (fetchedUserByEmail) {
+        res.status(409).send("User can not update email");
+        return;
+      }
     }
 
     const result = await db

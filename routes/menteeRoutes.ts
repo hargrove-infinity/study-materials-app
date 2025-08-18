@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { eq } from "drizzle-orm";
 import { db, menteeTable } from "../drizzle";
 import {
-  menteeDefSchema,
+  menteeInsertSchema,
   menteeUpdateSchema,
   queryParamsIdSchema,
 } from "../validation";
@@ -16,7 +16,7 @@ async function createOneMentee(
 ): Promise<void> {
   try {
     const body = req.body;
-    const parsedBody = menteeDefSchema.parse(body);
+    const parsedBody = menteeInsertSchema.parse(body);
 
     const existingMentee = await db.query.menteeTable.findFirst({
       where: (mentee, { eq }) => eq(mentee.userId, parsedBody.userId),

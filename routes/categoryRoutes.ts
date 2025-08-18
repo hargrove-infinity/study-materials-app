@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { eq } from "drizzle-orm";
 import { ZodError } from "zod";
 import {
-  categoryDefSchema,
+  categoryInsertSchema,
   categoryUpdateSchema,
   queryParamsIdSchema,
 } from "../validation";
@@ -17,7 +17,7 @@ async function createOneCategory(
 ): Promise<void> {
   try {
     const body = req.body;
-    const parsedBody = categoryDefSchema.parse(body);
+    const parsedBody = categoryInsertSchema.parse(body);
 
     const result = await db
       .insert(categoryTable)
