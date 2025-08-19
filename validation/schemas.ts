@@ -5,7 +5,7 @@ import {
   materialTable,
   menteeTable,
   userTable,
-} from "../drizzle";
+} from "../drizzle/schema";
 
 /* VALIDATION SCHEMAS */
 
