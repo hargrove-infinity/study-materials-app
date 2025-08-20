@@ -158,9 +158,10 @@ async function replaceOneCategory(
 
     const body = req.body;
     const parsedBody = replaceOneCategorySchema.parse(body);
-    const { successorCategoryId } = parsedBody;
+    const { type } = parsedBody;
 
-    if (successorCategoryId) {
+    if (type === "byId") {
+      const { successorCategoryId } = parsedBody;
       const updatedCategory = await db.transaction(async (tx) => {
         const resultOldCategory = await tx
           .update(categoryTable)
@@ -188,6 +189,7 @@ async function replaceOneCategory(
     }
 
     // TODO handle successorCategory in parsedBody
+    const { successorCategory } = parsedBody;
     res.send("OK");
   } catch (error) {
     console.error(error);

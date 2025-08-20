@@ -38,12 +38,12 @@ export const categoryUpdateSchema = createUpdateSchema(categoryTable).omit({
 });
 
 const withSuccessorCategoryId = z.object({
+  type: z.literal("byId"),
   successorCategoryId: z.uuid().nonempty(),
-  successorCategory: z.undefined(),
 });
 
 const withSuccessorCategory = z.object({
-  successorCategoryId: z.undefined(),
+  type: z.literal("byModel"),
   successorCategory: categoryInsertSchema,
 });
 
