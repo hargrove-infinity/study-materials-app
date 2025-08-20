@@ -31,7 +31,12 @@ export const menteeUpdateSchema = createUpdateSchema(menteeTable);
 
 // Categories
 export const categoryInsertSchema = createInsertSchema(categoryTable);
-export const categoryUpdateSchema = createUpdateSchema(categoryTable);
+
+export const categoryUpdateSchema = createUpdateSchema(categoryTable).omit({
+  successorCategoryId: true,
+  predecessorCategoryId: true,
+});
+
 export const replaceOneCategorySchema = z.object({
   successorCategoryId: z.uuid().nonempty(),
 });
