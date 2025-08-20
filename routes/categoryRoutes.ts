@@ -160,29 +160,35 @@ async function replaceOneCategory(
     const parsedBody = replaceOneCategorySchema.parse(body);
     const { successorCategoryId } = parsedBody;
 
-    const updatedCategory = await db.transaction(async (tx) => {
-      const resultOldCategory = await tx
-        .update(categoryTable)
-        .set({ successorCategoryId })
-        .where(eq(categoryTable.id, id))
-        .returning();
+    if (successorCategoryId) {
+      const updatedCategory = await db.transaction(async (tx) => {
+        const resultOldCategory = await tx
+          .update(categoryTable)
+          .set({ successorCategoryId })
+          .where(eq(categoryTable.id, id))
+          .returning();
 
-      const oldCategory = resultOldCategory[0];
+        const oldCategory = resultOldCategory[0];
 
-      await tx
-        .update(categoryTable)
-        .set({ predecessorCategoryId: id })
-        .where(eq(categoryTable.id, successorCategoryId));
+        await tx
+          .update(categoryTable)
+          .set({ predecessorCategoryId: id })
+          .where(eq(categoryTable.id, successorCategoryId));
 
-      await tx
-        .update(materialCategoriesTable)
-        .set({ categoryId: successorCategoryId })
-        .where(eq(materialCategoriesTable.categoryId, id));
+        await tx
+          .update(materialCategoriesTable)
+          .set({ categoryId: successorCategoryId })
+          .where(eq(materialCategoriesTable.categoryId, id));
 
-      return oldCategory;
-    });
+        return oldCategory;
+      });
 
-    res.send(updatedCategory);
+      res.send(updatedCategory);
+      return;
+    }
+
+    // TODO handle successorCategory in parsedBody
+    res.send("OK");
   } catch (error) {
     console.error(error);
     res.status(500).send("Error in replace one category");

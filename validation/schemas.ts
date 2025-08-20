@@ -37,9 +37,20 @@ export const categoryUpdateSchema = createUpdateSchema(categoryTable).omit({
   predecessorCategoryId: true,
 });
 
-export const replaceOneCategorySchema = z.object({
+const withSuccessorCategoryId = z.object({
   successorCategoryId: z.uuid().nonempty(),
+  successorCategory: z.undefined(),
 });
+
+const withSuccessorCategory = z.object({
+  successorCategoryId: z.undefined(),
+  successorCategory: categoryInsertSchema,
+});
+
+export const replaceOneCategorySchema = z.union([
+  withSuccessorCategoryId,
+  withSuccessorCategory,
+]);
 
 // Materials
 export const materialInsertSchema = createInsertSchema(materialTable);
