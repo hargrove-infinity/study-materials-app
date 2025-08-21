@@ -188,9 +188,34 @@ async function replaceOneCategory(
       return;
     }
 
-    // TODO handle successorCategory in parsedBody
     const { successorCategory } = parsedBody;
-    res.send("OK");
+
+    const updatedCategory = await db.transaction(async (tx) => {
+      const resultNewCategory = await tx
+        .insert(categoryTable)
+        .values({ ...successorCategory, predecessorCategoryId: id })
+        .returning();
+
+      const newCategory = resultNewCategory[0];
+
+      const resultOldCategory = await tx
+        .update(categoryTable)
+        .set({ successorCategoryId: newCategory.id })
+        .where(eq(categoryTable.id, id))
+        .returning();
+
+      const oldCategory = resultOldCategory[0];
+
+      await tx
+        .update(materialCategoriesTable)
+        .set({ categoryId: newCategory.id })
+        .where(eq(materialCategoriesTable.categoryId, id))
+        .returning();
+
+      return oldCategory;
+    });
+
+    res.send(updatedCategory);
   } catch (error) {
     console.error(error);
     res.status(500).send("Error in replace one category");
