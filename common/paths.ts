@@ -15,4 +15,8 @@ export const paths = {
     id: "/materials/:id",
     byCategory: "/materials/category/:id",
   },
+  reports: {
+    base: "/reports",
+    menteesWithMaterials: "/mentees-with-materials",
+  },
 } as const;
