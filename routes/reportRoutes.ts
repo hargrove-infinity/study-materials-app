@@ -25,4 +25,12 @@ async function getAllMenteesWithMaterials(
   }
 }
 
-export const reportRoutes = { getAllMenteesWithMaterials };
+async function getAllMaterialsWithCategories(
+  req: Request,
+  res: Response
+): Promise<void> {}
+
+export const reportRoutes = {
+  getAllMenteesWithMaterials,
+  getAllMaterialsWithCategories,
+};
