@@ -8,6 +8,9 @@ import {
   menteeTable,
 } from "../drizzle";
 
+// Reports endpoints
+
+// Get all mentees with related materials
 async function getAllMenteesWithMaterials(
   req: Request,
   res: Response
@@ -31,6 +34,7 @@ async function getAllMenteesWithMaterials(
   }
 }
 
+// Get all materials with related categories
 async function getAllMaterialsWithCategories(
   req: Request,
   res: Response
@@ -56,14 +60,21 @@ async function getAllMaterialsWithCategories(
     res.send(result);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error in get all mentees with materials");
+    res.status(500).send("Error in get all materials with categories");
   }
 }
 
+// Get all categories with related materials
 async function getAllCategoriesWithMaterials(
   req: Request,
   res: Response
-): Promise<void> {}
+): Promise<void> {
+  try {
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in get all categories  with materials");
+  }
+}
 
 export const reportRoutes = {
   getAllMenteesWithMaterials,
