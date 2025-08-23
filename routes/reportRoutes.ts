@@ -60,7 +60,13 @@ async function getAllMaterialsWithCategories(
   }
 }
 
+async function getAllCategoriesWithMaterials(
+  req: Request,
+  res: Response
+): Promise<void> {}
+
 export const reportRoutes = {
   getAllMenteesWithMaterials,
   getAllMaterialsWithCategories,
+  getAllCategoriesWithMaterials,
 };

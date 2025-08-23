@@ -53,6 +53,10 @@ reportRouter.get(
   paths.reports.materialsWithCategories,
   reportRoutes.getAllMaterialsWithCategories
 );
+reportRouter.get(
+  paths.reports.categoriesWithMaterials,
+  reportRoutes.getAllCategoriesWithMaterials
+);
 
 // Base router
 const baseRouter = Router();
