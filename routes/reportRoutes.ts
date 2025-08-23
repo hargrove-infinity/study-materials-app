@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
 import { eq } from "drizzle-orm";
-import { db, materialTable, menteeTable } from "../drizzle";
+import {
+  categoryTable,
+  db,
+  materialCategoriesTable,
+  materialTable,
+  menteeTable,
+} from "../drizzle";
 
 async function getAllMenteesWithMaterials(
   req: Request,
@@ -28,7 +34,31 @@ async function getAllMenteesWithMaterials(
 async function getAllMaterialsWithCategories(
   req: Request,
   res: Response
-): Promise<void> {}
+): Promise<void> {
+  try {
+    const result = await db
+      .select({
+        materialUrl: materialTable.url,
+        materialType: materialTable.type,
+        categoryName: categoryTable.name,
+        categoryDescription: categoryTable.description,
+      })
+      .from(materialTable)
+      .leftJoin(
+        materialCategoriesTable,
+        eq(materialTable.id, materialCategoriesTable.materialId)
+      )
+      .leftJoin(
+        categoryTable,
+        eq(categoryTable.id, materialCategoriesTable.categoryId)
+      );
+
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in get all mentees with materials");
+  }
+}
 
 export const reportRoutes = {
   getAllMenteesWithMaterials,
