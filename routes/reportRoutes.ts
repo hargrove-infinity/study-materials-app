@@ -70,9 +70,27 @@ async function getAllCategoriesWithMaterials(
   res: Response
 ): Promise<void> {
   try {
+    const result = await db
+      .select({
+        categoryName: categoryTable.name,
+        categoryDescription: categoryTable.description,
+        materialUrl: materialTable.url,
+        materialType: materialTable.type,
+      })
+      .from(materialTable)
+      .rightJoin(
+        materialCategoriesTable,
+        eq(materialTable.id, materialCategoriesTable.materialId)
+      )
+      .rightJoin(
+        categoryTable,
+        eq(categoryTable.id, materialCategoriesTable.categoryId)
+      );
+
+    res.send(result);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error in get all categories  with materials");
+    res.status(500).send("Error in get all categories with materials");
   }
 }
 
