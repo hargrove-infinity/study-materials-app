@@ -66,6 +66,10 @@ reportRouter.get(
   reportRoutes.getAllUsedMaterialsDistinct
 );
 reportRouter.get(
+  paths.reports.materialTypesByCategory,
+  reportRoutes.getAllMaterialTypesByCategory
+);
+reportRouter.get(
   paths.reports.materialsCategoriesRecommendations,
   reportRoutes.getAllMaterialsCategoriesRecommendations
 );

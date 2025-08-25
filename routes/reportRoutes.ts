@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { eq, isNotNull } from "drizzle-orm";
+import { asc, desc, eq, isNotNull, sql } from "drizzle-orm";
 import {
   categoryTable,
   db,
@@ -170,8 +170,37 @@ async function getAllUsedMaterialsDuplicates(
     res
       .status(500)
       .send(
-        "Error in get all materials with categories or recommendations (distinct)"
+        "Error in get all materials with categories or recommendations (duplicates)"
       );
+  }
+}
+
+// Get all material types by category
+async function getAllMaterialTypesByCategory(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const result = await db
+      .select({
+        categoryName: categoryTable.name,
+        materialType: materialTable.type,
+      })
+      .from(categoryTable)
+      .fullJoin(
+        materialCategoriesTable,
+        eq(categoryTable.id, materialCategoriesTable.categoryId)
+      )
+      .fullJoin(
+        materialTable,
+        eq(materialTable.id, materialCategoriesTable.materialId)
+      )
+      .orderBy(asc(categoryTable.name), asc(sql`${materialTable.type}::text`));
+
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in get all material types by category");
   }
 }
 
@@ -217,5 +246,6 @@ export const reportRoutes = {
   getAllCategoriesWithMaterials,
   getAllUsedMaterialsDuplicates,
   getAllUsedMaterialsDistinct,
+  getAllMaterialTypesByCategory,
   getAllMaterialsCategoriesRecommendations,
 };

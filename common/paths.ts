@@ -22,6 +22,7 @@ export const paths = {
     categoriesWithMaterials: "/categories-with-materials",
     usedMaterialsDistinct: "/used-materials/distinct",
     usedMaterialsDuplicates: "/used-materials/duplicates",
+    materialTypesByCategory: "/material-types-by-category",
     materialsCategoriesRecommendations: "/materials-categories-recommendations",
   },
 } as const;
