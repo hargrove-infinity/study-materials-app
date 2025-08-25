@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
-import { eq } from "drizzle-orm";
+import { eq, isNotNull } from "drizzle-orm";
 import {
   categoryTable,
   db,
   materialCategoriesTable,
+  materialRecommendationsTable,
   materialTable,
   menteeTable,
 } from "../drizzle";
@@ -94,8 +95,45 @@ async function getAllCategoriesWithMaterials(
   }
 }
 
+// Get all materials with related categories and recommendations
+async function getAllMaterialsCategoriesRecommendations(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const result = await db
+      .select({
+        materialUrl: materialTable.url,
+        materialType: materialTable.type,
+        categoryName: categoryTable.name,
+        isRecommended: isNotNull(
+          materialRecommendationsTable.recommendedMaterialId
+        ),
+      })
+      .from(materialTable)
+      .fullJoin(
+        materialCategoriesTable,
+        eq(materialTable.id, materialCategoriesTable.materialId)
+      )
+      .fullJoin(
+        categoryTable,
+        eq(categoryTable.id, materialCategoriesTable.categoryId)
+      )
+      .fullJoin(
+        materialRecommendationsTable,
+        eq(materialTable.id, materialRecommendationsTable.recommendedMaterialId)
+      );
+
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in get all categories with materials");
+  }
+}
+
 export const reportRoutes = {
   getAllMenteesWithMaterials,
   getAllMaterialsWithCategories,
   getAllCategoriesWithMaterials,
+  getAllMaterialsCategoriesRecommendations,
 };
