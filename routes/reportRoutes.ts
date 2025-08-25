@@ -204,6 +204,34 @@ async function getAllMaterialTypesByCategory(
   }
 }
 
+// Get all material types by mentee
+async function getAllMaterialTypesByMentee(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const result = await db
+      .select({
+        materialType: materialTable.type,
+        menteeFirstName: menteeTable.firstName,
+        menteeLastName: menteeTable.lastName,
+      })
+      .from(materialTable)
+      .innerJoin(menteeTable, eq(materialTable.menteeId, menteeTable.id))
+      .groupBy(materialTable.type, menteeTable.firstName, menteeTable.lastName)
+      .orderBy(
+        asc(menteeTable.firstName),
+        asc(menteeTable.lastName),
+        asc(sql`${materialTable.type}::text`)
+      );
+
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in get all material types by mentee");
+  }
+}
+
 // Get all materials with related categories and recommendations
 async function getAllMaterialsCategoriesRecommendations(
   req: Request,
@@ -247,5 +275,6 @@ export const reportRoutes = {
   getAllUsedMaterialsDuplicates,
   getAllUsedMaterialsDistinct,
   getAllMaterialTypesByCategory,
+  getAllMaterialTypesByMentee,
   getAllMaterialsCategoriesRecommendations,
 };

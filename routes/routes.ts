@@ -70,6 +70,10 @@ reportRouter.get(
   reportRoutes.getAllMaterialTypesByCategory
 );
 reportRouter.get(
+  paths.reports.materialTypesByMentee,
+  reportRoutes.getAllMaterialTypesByMentee
+);
+reportRouter.get(
   paths.reports.materialsCategoriesRecommendations,
   reportRoutes.getAllMaterialsCategoriesRecommendations
 );

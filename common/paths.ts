@@ -23,6 +23,7 @@ export const paths = {
     usedMaterialsDistinct: "/used-materials/distinct",
     usedMaterialsDuplicates: "/used-materials/duplicates",
     materialTypesByCategory: "/material-types-by-category",
+    materialTypesByMentee: "/material-types-by-mentee",
     materialsCategoriesRecommendations: "/materials-categories-recommendations",
   },
 } as const;
