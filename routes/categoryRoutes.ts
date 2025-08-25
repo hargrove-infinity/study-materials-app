@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { eq } from "drizzle-orm";
 import { ZodError } from "zod";
+import { db, categoryTable, materialCategoriesTable } from "../drizzle";
 import {
   categoryInsertSchema,
   categoryUpdateSchema,
   queryParamsIdSchema,
+  replaceOneCategorySchema,
 } from "../validation";
-import { db, categoryTable } from "../drizzle";
 
 // Categories endpoints
 
@@ -137,10 +138,95 @@ async function deleteOneCategory(
   }
 }
 
+async function replaceOneCategory(
+  req: Request<unknown, {}, unknown>,
+  res: Response
+): Promise<void> {
+  try {
+    const params = req.params;
+    const parsedParams = queryParamsIdSchema.parse(params);
+    const { id } = parsedParams;
+
+    const foundCategory = await db.query.categoryTable.findFirst({
+      where: eq(categoryTable.id, id),
+    });
+
+    if (!foundCategory) {
+      res.status(404).send(`Category with provided ${id} is not found`);
+      return;
+    }
+
+    const body = req.body;
+    const parsedBody = replaceOneCategorySchema.parse(body);
+    const { type } = parsedBody;
+
+    if (type === "byId") {
+      const { successorCategoryId } = parsedBody;
+      const updatedCategory = await db.transaction(async (tx) => {
+        const resultOldCategory = await tx
+          .update(categoryTable)
+          .set({ successorCategoryId })
+          .where(eq(categoryTable.id, id))
+          .returning();
+
+        const oldCategory = resultOldCategory[0];
+
+        await tx
+          .update(categoryTable)
+          .set({ predecessorCategoryId: id })
+          .where(eq(categoryTable.id, successorCategoryId));
+
+        await tx
+          .update(materialCategoriesTable)
+          .set({ categoryId: successorCategoryId })
+          .where(eq(materialCategoriesTable.categoryId, id));
+
+        return oldCategory;
+      });
+
+      res.send(updatedCategory);
+      return;
+    }
+
+    const { successorCategory } = parsedBody;
+
+    const updatedCategory = await db.transaction(async (tx) => {
+      const resultNewCategory = await tx
+        .insert(categoryTable)
+        .values({ ...successorCategory, predecessorCategoryId: id })
+        .returning();
+
+      const newCategory = resultNewCategory[0];
+
+      const resultOldCategory = await tx
+        .update(categoryTable)
+        .set({ successorCategoryId: newCategory.id })
+        .where(eq(categoryTable.id, id))
+        .returning();
+
+      const oldCategory = resultOldCategory[0];
+
+      await tx
+        .update(materialCategoriesTable)
+        .set({ categoryId: newCategory.id })
+        .where(eq(materialCategoriesTable.categoryId, id))
+        .returning();
+
+      return oldCategory;
+    });
+
+    res.send(updatedCategory);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in replace one category");
+  }
+}
+
 export const categoryRoutes = {
   createOneCategory,
   getAllCategories,
   getOneCategory,
   updateOneCategory,
   deleteOneCategory,
+  replaceOneCategory,
 } as const;

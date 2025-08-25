@@ -30,6 +30,7 @@ categoryRouter.get(paths.categories.base, categoryRoutes.getAllCategories);
 categoryRouter.get(paths.categories.id, categoryRoutes.getOneCategory);
 categoryRouter.put(paths.categories.id, categoryRoutes.updateOneCategory);
 categoryRouter.delete(paths.categories.id, categoryRoutes.deleteOneCategory);
+categoryRouter.put(paths.categories.replace, categoryRoutes.replaceOneCategory);
 
 // Material router
 const materialRouter = Router();

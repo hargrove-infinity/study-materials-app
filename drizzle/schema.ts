@@ -50,6 +50,12 @@ export const categoryTable = pgTable("category", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   description: text("description").notNull(),
+  predecessorCategoryId: uuid("predecessor_category_id").references(
+    (): AnyPgColumn => categoryTable.id
+  ),
+  successorCategoryId: uuid("successor_category_id").references(
+    (): AnyPgColumn => categoryTable.id
+  ),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .notNull()
@@ -118,8 +124,16 @@ export const menteeRelations = relations(menteeTable, ({ one, many }) => ({
   materials: many(materialTable),
 }));
 
-export const categoryRelations = relations(categoryTable, ({ many }) => ({
+export const categoryRelations = relations(categoryTable, ({ many, one }) => ({
   materialCategories: many(materialCategoriesTable),
+  predecessorCategory: one(categoryTable, {
+    fields: [categoryTable.predecessorCategoryId],
+    references: [categoryTable.id],
+  }),
+  successorCategory: one(categoryTable, {
+    fields: [categoryTable.successorCategoryId],
+    references: [categoryTable.id],
+  }),
 }));
 
 export const materialRelations = relations(materialTable, ({ one, many }) => ({
