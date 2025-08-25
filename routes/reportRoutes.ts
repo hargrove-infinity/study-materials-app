@@ -95,6 +95,46 @@ async function getAllCategoriesWithMaterials(
   }
 }
 
+// Get all materials with categories or recommendations (distinct)
+async function getAllUsedMaterialsDistinct(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const result = await db
+      .selectDistinctOn([materialTable.id], {
+        materialId: materialTable.id,
+        materialUrl: materialTable.url,
+        materialType: materialTable.type,
+        categoryName: categoryTable.name,
+        recommendedMaterialId:
+          materialRecommendationsTable.recommendedMaterialId,
+      })
+      .from(materialTable)
+      .innerJoin(
+        materialCategoriesTable,
+        eq(materialTable.id, materialCategoriesTable.materialId)
+      )
+      .innerJoin(
+        categoryTable,
+        eq(categoryTable.id, materialCategoriesTable.categoryId)
+      )
+      .innerJoin(
+        materialRecommendationsTable,
+        eq(materialTable.id, materialRecommendationsTable.recommendedMaterialId)
+      );
+
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send(
+        "Error in get all materials with categories or recommendations (distinct)"
+      );
+  }
+}
+
 // Get all materials with related categories and recommendations
 async function getAllMaterialsCategoriesRecommendations(
   req: Request,
@@ -135,5 +175,6 @@ export const reportRoutes = {
   getAllMenteesWithMaterials,
   getAllMaterialsWithCategories,
   getAllCategoriesWithMaterials,
+  getAllUsedMaterialsDistinct,
   getAllMaterialsCategoriesRecommendations,
 };

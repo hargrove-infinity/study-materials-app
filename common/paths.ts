@@ -20,6 +20,7 @@ export const paths = {
     menteesWithMaterials: "/mentees-with-materials",
     materialsWithCategories: "/materials-with-categories",
     categoriesWithMaterials: "/categories-with-materials",
+    usedMaterialsDistinct: "/used-materials/distinct",
     materialsCategoriesRecommendations: "/materials-categories-recommendations",
   },
 } as const;
