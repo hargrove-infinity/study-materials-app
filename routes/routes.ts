@@ -58,6 +58,10 @@ reportRouter.get(
   reportRoutes.getAllCategoriesWithMaterials
 );
 reportRouter.get(
+  paths.reports.usedMaterialsDuplicates,
+  reportRoutes.getAllUsedMaterialsDuplicates
+);
+reportRouter.get(
   paths.reports.usedMaterialsDistinct,
   reportRoutes.getAllUsedMaterialsDistinct
 );

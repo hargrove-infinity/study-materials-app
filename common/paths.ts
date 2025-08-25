@@ -21,6 +21,7 @@ export const paths = {
     materialsWithCategories: "/materials-with-categories",
     categoriesWithMaterials: "/categories-with-materials",
     usedMaterialsDistinct: "/used-materials/distinct",
+    usedMaterialsDuplicates: "/used-materials/duplicates",
     materialsCategoriesRecommendations: "/materials-categories-recommendations",
   },
 } as const;
