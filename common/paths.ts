@@ -16,4 +16,15 @@ export const paths = {
     id: "/materials/:id",
     byCategory: "/materials/category/:id",
   },
+  reports: {
+    base: "/reports",
+    menteesWithMaterials: "/mentees-with-materials",
+    materialsWithCategories: "/materials-with-categories",
+    categoriesWithMaterials: "/categories-with-materials",
+    usedMaterialsDistinct: "/used-materials/distinct",
+    usedMaterialsDuplicates: "/used-materials/duplicates",
+    materialTypesByCategory: "/material-types-by-category",
+    materialTypesByMentee: "/material-types-by-mentee",
+    materialsCategoriesRecommendations: "/materials-categories-recommendations",
+  },
 } as const;
