@@ -9,6 +9,7 @@ export const paths = {
   categories: {
     base: "/categories",
     id: "/categories/:id",
+    replace: "/categories/:id/replace",
   },
   materials: {
     base: "/materials",

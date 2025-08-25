@@ -31,7 +31,26 @@ export const menteeUpdateSchema = createUpdateSchema(menteeTable);
 
 // Categories
 export const categoryInsertSchema = createInsertSchema(categoryTable);
-export const categoryUpdateSchema = createUpdateSchema(categoryTable);
+
+export const categoryUpdateSchema = createUpdateSchema(categoryTable).omit({
+  successorCategoryId: true,
+  predecessorCategoryId: true,
+});
+
+const withSuccessorCategoryId = z.object({
+  type: z.literal("byId"),
+  successorCategoryId: z.uuid().nonempty(),
+});
+
+const withSuccessorCategory = z.object({
+  type: z.literal("byModel"),
+  successorCategory: categoryInsertSchema,
+});
+
+export const replaceOneCategorySchema = z.union([
+  withSuccessorCategoryId,
+  withSuccessorCategory,
+]);
 
 // Materials
 export const materialInsertSchema = createInsertSchema(materialTable);
