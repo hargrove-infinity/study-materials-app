@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { asc, desc, eq, isNotNull, sql } from "drizzle-orm";
+import { asc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import {
   categoryTable,
   db,
@@ -8,6 +8,7 @@ import {
   materialTable,
   menteeTable,
 } from "../drizzle";
+import { union } from "drizzle-orm/pg-core";
 
 // Reports endpoints
 
@@ -101,28 +102,27 @@ async function getAllUsedMaterialsDistinct(
   res: Response
 ): Promise<void> {
   try {
-    const result = await db
-      .selectDistinctOn([materialTable.id], {
-        materialId: materialTable.id,
-        materialUrl: materialTable.url,
-        materialType: materialTable.type,
-        categoryName: categoryTable.name,
-        recommendedMaterialId:
-          materialRecommendationsTable.recommendedMaterialId,
+    const materialCategoriesQuery = db
+      .select({ materialId: materialCategoriesTable.materialId })
+      .from(materialCategoriesTable);
+
+    const materialRecommendationsQuery = db
+      .select({
+        materialId: materialRecommendationsTable.materialId,
       })
-      .from(materialTable)
-      .innerJoin(
-        materialCategoriesTable,
-        eq(materialTable.id, materialCategoriesTable.materialId)
-      )
-      .innerJoin(
-        categoryTable,
-        eq(categoryTable.id, materialCategoriesTable.categoryId)
-      )
-      .innerJoin(
-        materialRecommendationsTable,
-        eq(materialTable.id, materialRecommendationsTable.recommendedMaterialId)
-      );
+      .from(materialRecommendationsTable);
+
+    const materialCategoriesAndRecommendations = await union(
+      materialCategoriesQuery,
+      materialRecommendationsQuery
+    );
+
+    const materialCategoriesAndRecommendationsIds =
+      materialCategoriesAndRecommendations.map((item) => item.materialId);
+
+    const result = await db.query.materialTable.findMany({
+      where: inArray(materialTable.id, materialCategoriesAndRecommendationsIds),
+    });
 
     res.send(result);
   } catch (error) {
