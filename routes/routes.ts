@@ -67,8 +67,8 @@ reportRouter.get(
   reportRoutes.getAllUsedMaterialsDistinct
 );
 reportRouter.get(
-  paths.reports.materialTypesByCategory,
-  reportRoutes.getAllMaterialTypesByCategory
+  paths.reports.categoriesWithMaterialCategories,
+  reportRoutes.getAllCategoriesWithMaterialCategories
 );
 reportRouter.get(
   paths.reports.materialTypesByMentee,

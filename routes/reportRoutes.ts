@@ -179,32 +179,29 @@ async function getAllUsedMaterialsDuplicates(
   }
 }
 
-// Get all material types by category
-async function getAllMaterialTypesByCategory(
+// Get all categories with material categories
+async function getAllCategoriesWithMaterialCategories(
   req: Request,
   res: Response
 ): Promise<void> {
   try {
     const result = await db
       .select({
-        categoryName: categoryTable.name,
-        materialType: materialTable.type,
+        categoryId: categoryTable.id,
+        name: categoryTable.name,
+        description: categoryTable.description,
+        materialCategoriesCategoryId: materialCategoriesTable.categoryId,
+        materialCategoriesMaterialId: materialCategoriesTable.materialId,
       })
       .from(categoryTable)
-      .fullJoin(
-        materialCategoriesTable,
-        eq(categoryTable.id, materialCategoriesTable.categoryId)
-      )
-      .fullJoin(
-        materialTable,
-        eq(materialTable.id, materialCategoriesTable.materialId)
-      )
-      .orderBy(asc(categoryTable.name), asc(sql`${materialTable.type}::text`));
+      .crossJoin(materialCategoriesTable);
 
     res.send(result);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error in get all material types by category");
+    res
+      .status(500)
+      .send("Error in get all categories with material categories");
   }
 }
 
@@ -278,7 +275,7 @@ export const reportRoutes = {
   getAllCategoriesWithMaterials,
   getAllUsedMaterialsDuplicates,
   getAllUsedMaterialsDistinct,
-  getAllMaterialTypesByCategory,
+  getAllCategoriesWithMaterialCategories,
   getAllMaterialTypesByMentee,
   getAllMaterialsCategoriesRecommendations,
 };

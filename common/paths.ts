@@ -23,7 +23,7 @@ export const paths = {
     categoriesWithMaterials: "/categories-with-materials",
     usedMaterialsDistinct: "/used-materials/distinct",
     usedMaterialsDuplicates: "/used-materials/duplicates",
-    materialTypesByCategory: "/material-types-by-category",
+    categoriesWithMaterialCategories: "/categories-with-material-categories",
     materialTypesByMentee: "/material-types-by-mentee",
     materialsCategoriesRecommendations: "/materials-categories-recommendations",
   },
