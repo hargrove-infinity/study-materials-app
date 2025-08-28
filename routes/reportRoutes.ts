@@ -8,7 +8,7 @@ import {
   materialTable,
   menteeTable,
 } from "../drizzle";
-import { union } from "drizzle-orm/pg-core";
+import { union, unionAll } from "drizzle-orm/pg-core";
 
 // Reports endpoints
 
@@ -141,27 +141,31 @@ async function getAllUsedMaterialsDuplicates(
   res: Response
 ): Promise<void> {
   try {
+    const materialCategoriesQuery = db
+      .select({ materialId: materialCategoriesTable.materialId })
+      .from(materialCategoriesTable);
+
+    const materialRecommendationsQuery = db
+      .select({
+        materialId: materialRecommendationsTable.materialId,
+      })
+      .from(materialRecommendationsTable);
+
+    const materialCategoriesAndRecommendations = unionAll(
+      materialCategoriesQuery,
+      materialRecommendationsQuery
+    ).as("materialCategoriesAndRecommendationsQuery");
+
     const result = await db
       .select({
-        materialId: materialTable.id,
-        materialUrl: materialTable.url,
-        materialType: materialTable.type,
-        categoryName: categoryTable.name,
-        recommendedMaterialId:
-          materialRecommendationsTable.recommendedMaterialId,
+        id: materialTable.id,
+        url: materialTable.url,
+        type: materialTable.type,
       })
-      .from(materialTable)
+      .from(materialCategoriesAndRecommendations)
       .innerJoin(
-        materialCategoriesTable,
-        eq(materialTable.id, materialCategoriesTable.materialId)
-      )
-      .innerJoin(
-        categoryTable,
-        eq(categoryTable.id, materialCategoriesTable.categoryId)
-      )
-      .innerJoin(
-        materialRecommendationsTable,
-        eq(materialTable.id, materialRecommendationsTable.recommendedMaterialId)
+        materialTable,
+        eq(materialTable.id, materialCategoriesAndRecommendations.materialId)
       );
 
     res.send(result);
