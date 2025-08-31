@@ -3,6 +3,7 @@ import { paths } from "../common";
 import { categoryRoutes } from "./categoryRoutes";
 import { materialRoutes } from "./materialRoutes";
 import { menteeRoutes } from "./menteeRoutes";
+import { reportRoutes } from "./reportRoutes";
 import { userRoutes } from "./userRoutes";
 
 // User router
@@ -43,11 +44,47 @@ materialRouter.get(
 materialRouter.put(paths.materials.id, materialRoutes.updateOneMaterial);
 materialRouter.delete(paths.materials.id, materialRoutes.deleteOneMaterial);
 
+// Report router
+const reportRouter = Router();
+reportRouter.get(
+  paths.reports.menteesWithMaterials,
+  reportRoutes.getAllMenteesWithMaterials
+);
+reportRouter.get(
+  paths.reports.materialsWithCategories,
+  reportRoutes.getAllMaterialsWithCategories
+);
+reportRouter.get(
+  paths.reports.categoriesWithMaterials,
+  reportRoutes.getAllCategoriesWithMaterials
+);
+reportRouter.get(
+  paths.reports.usedMaterialsDuplicates,
+  reportRoutes.getAllUsedMaterialsDuplicates
+);
+reportRouter.get(
+  paths.reports.usedMaterialsDistinct,
+  reportRoutes.getAllUsedMaterialsDistinct
+);
+reportRouter.get(
+  paths.reports.categoriesWithMaterialCategories,
+  reportRoutes.getAllCategoriesWithMaterialCategories
+);
+reportRouter.get(
+  paths.reports.materialTypesByMentee,
+  reportRoutes.getAllMaterialTypesByMentee
+);
+reportRouter.get(
+  paths.reports.materialsCategoriesRecommendations,
+  reportRoutes.getAllMaterialsCategoriesRecommendations
+);
+
 // Base router
 const baseRouter = Router();
 baseRouter.use(userRouter);
 baseRouter.use(menteeRouter);
 baseRouter.use(categoryRouter);
 baseRouter.use(materialRouter);
+baseRouter.use(paths.reports.base, reportRouter);
 
 export { baseRouter };
