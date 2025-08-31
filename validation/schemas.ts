@@ -22,7 +22,10 @@ export const envSchema = z.object({
 export const queryParamsIdSchema = z.object({ id: z.uuid() });
 
 // Users
-export const userInsertSchema = createInsertSchema(userTable);
+export const userInsertSchema = createInsertSchema(userTable).extend({
+  email: z.email().nonempty(),
+});
+
 export const userUpdateSchema = createUpdateSchema(userTable);
 
 // Mentees
