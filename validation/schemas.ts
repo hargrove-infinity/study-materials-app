@@ -28,7 +28,11 @@ export const userInsertSchema = createInsertSchema(userTable)
   })
   .pick({ email: true });
 
-export const userUpdateSchema = createUpdateSchema(userTable);
+export const userUpdateSchema = createUpdateSchema(userTable)
+  .extend({
+    email: z.email().nonempty(),
+  })
+  .pick({ email: true });
 
 // Mentees
 export const menteeInsertSchema = createInsertSchema(menteeTable);
