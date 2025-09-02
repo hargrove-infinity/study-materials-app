@@ -58,10 +58,12 @@ export const categoryInsertSchema = createInsertSchema(categoryTable)
   })
   .pick({ name: true, description: true });
 
-export const categoryUpdateSchema = createUpdateSchema(categoryTable).omit({
-  successorCategoryId: true,
-  predecessorCategoryId: true,
-});
+export const categoryUpdateSchema = createUpdateSchema(categoryTable)
+  .extend({
+    name: z.string().nonempty().optional(),
+    description: z.string().nonempty().optional(),
+  })
+  .pick({ name: true, description: true });
 
 const withSuccessorCategoryId = z.object({
   type: z.literal("byId"),
