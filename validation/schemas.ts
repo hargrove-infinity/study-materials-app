@@ -81,7 +81,12 @@ export const replaceOneCategorySchema = z.union([
 ]);
 
 // Materials
-export const materialInsertSchema = createInsertSchema(materialTable);
+const materialInsertSchema = createInsertSchema(materialTable)
+  .extend({
+    url: z.url().nonempty(),
+  })
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
 export const materialUpdateSchema = createUpdateSchema(materialTable);
 
 export const recommendedMaterialDefSchema = materialInsertSchema.extend({
