@@ -51,7 +51,12 @@ export const menteeUpdateSchema = createUpdateSchema(menteeTable)
   .pick({ firstName: true, lastName: true });
 
 // Categories
-export const categoryInsertSchema = createInsertSchema(categoryTable);
+export const categoryInsertSchema = createInsertSchema(categoryTable)
+  .extend({
+    name: z.string().nonempty(),
+    description: z.string().nonempty(),
+  })
+  .pick({ name: true, description: true });
 
 export const categoryUpdateSchema = createUpdateSchema(categoryTable).omit({
   successorCategoryId: true,
