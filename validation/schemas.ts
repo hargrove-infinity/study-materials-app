@@ -26,13 +26,13 @@ export const userInsertSchema = createInsertSchema(userTable)
   .extend({
     email: z.email().nonempty(),
   })
-  .pick({ email: true });
+  .omit({ id: true, invitedByUserId: true, createdAt: true, updatedAt: true });
 
 export const userUpdateSchema = createUpdateSchema(userTable)
   .extend({
     email: z.email().nonempty(),
   })
-  .pick({ email: true });
+  .omit({ id: true, invitedByUserId: true, createdAt: true, updatedAt: true });
 
 // Mentees
 export const menteeInsertSchema = createInsertSchema(menteeTable)
@@ -41,14 +41,14 @@ export const menteeInsertSchema = createInsertSchema(menteeTable)
     lastName: z.string().nonempty(),
     userId: z.uuid().nonempty(),
   })
-  .pick({ firstName: true, lastName: true, userId: true });
+  .omit({ id: true, createdAt: true, updatedAt: true });
 
 export const menteeUpdateSchema = createUpdateSchema(menteeTable)
   .extend({
     firstName: z.string().nonempty().optional(),
     lastName: z.string().nonempty().optional(),
   })
-  .pick({ firstName: true, lastName: true });
+  .omit({ id: true, userId: true, createdAt: true, updatedAt: true });
 
 // Categories
 export const categoryInsertSchema = createInsertSchema(categoryTable)
@@ -56,14 +56,26 @@ export const categoryInsertSchema = createInsertSchema(categoryTable)
     name: z.string().nonempty(),
     description: z.string().nonempty(),
   })
-  .pick({ name: true, description: true });
+  .omit({
+    id: true,
+    predecessorCategoryId: true,
+    successorCategoryId: true,
+    createdAt: true,
+    updatedAt: true,
+  });
 
 export const categoryUpdateSchema = createUpdateSchema(categoryTable)
   .extend({
     name: z.string().nonempty().optional(),
     description: z.string().nonempty().optional(),
   })
-  .pick({ name: true, description: true });
+  .omit({
+    id: true,
+    predecessorCategoryId: true,
+    successorCategoryId: true,
+    createdAt: true,
+    updatedAt: true,
+  });
 
 const withSuccessorCategoryId = z.object({
   type: z.literal("byId"),
