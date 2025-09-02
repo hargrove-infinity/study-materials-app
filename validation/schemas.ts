@@ -35,7 +35,14 @@ export const userUpdateSchema = createUpdateSchema(userTable)
   .pick({ email: true });
 
 // Mentees
-export const menteeInsertSchema = createInsertSchema(menteeTable);
+export const menteeInsertSchema = createInsertSchema(menteeTable)
+  .extend({
+    firstName: z.string().nonempty(),
+    lastName: z.string().nonempty(),
+    userId: z.uuid().nonempty(),
+  })
+  .pick({ firstName: true, lastName: true, userId: true });
+
 export const menteeUpdateSchema = createUpdateSchema(menteeTable);
 
 // Categories
