@@ -58,7 +58,6 @@ export const categoryInsertSchema = createInsertSchema(categoryTable)
   })
   .omit({
     id: true,
-    predecessorCategoryId: true,
     successorCategoryId: true,
     createdAt: true,
     updatedAt: true,
@@ -77,20 +76,10 @@ export const categoryUpdateSchema = createUpdateSchema(categoryTable)
     updatedAt: true,
   });
 
-const withSuccessorCategoryId = z.object({
-  type: z.literal("byId"),
-  successorCategoryId: z.uuid().nonempty(),
+export const replaceCategoryByExistingSchema = z.object({
+  oldCategoryId: z.uuid().nonempty(),
+  newCategoryId: z.uuid().nonempty(),
 });
-
-const withSuccessorCategory = z.object({
-  type: z.literal("byModel"),
-  successorCategory: categoryInsertSchema,
-});
-
-export const replaceOneCategorySchema = z.union([
-  withSuccessorCategoryId,
-  withSuccessorCategory,
-]);
 
 // Materials
 const materialInsertSchema = createInsertSchema(materialTable)

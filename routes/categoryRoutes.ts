@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { ZodError } from "zod";
 import { db, categoryTable, materialCategoriesTable } from "../drizzle";
 import {
   categoryInsertSchema,
   categoryUpdateSchema,
   queryParamsIdSchema,
-  replaceOneCategorySchema,
+  replaceCategoryByExistingSchema,
 } from "../validation";
 
 // Categories endpoints
@@ -138,7 +138,56 @@ async function deleteOneCategory(
   }
 }
 
-async function replaceOneCategory(
+// Replace one category by existing
+async function replaceOneCategoryByExisting(
+  req: Request<unknown>,
+  res: Response
+): Promise<void> {
+  try {
+    const params = req.params;
+    const parsedParams = replaceCategoryByExistingSchema.parse(params);
+    const { oldCategoryId, newCategoryId } = parsedParams;
+
+    const foundCategories = await db.query.categoryTable.findMany({
+      where: inArray(categoryTable.id, [oldCategoryId, newCategoryId]),
+    });
+
+    if (foundCategories.length < 2) {
+      res.status(404).send("Some category with provided id is not found");
+      return;
+    }
+
+    const updatedCategory = await db.transaction(async (tx) => {
+      const resultOldCategory = await tx
+        .update(categoryTable)
+        .set({ successorCategoryId: newCategoryId })
+        .where(eq(categoryTable.id, oldCategoryId))
+        .returning();
+
+      const oldCategory = resultOldCategory[0];
+
+      await tx
+        .update(categoryTable)
+        .set({ predecessorCategoryId: oldCategoryId })
+        .where(eq(categoryTable.id, newCategoryId));
+
+      await tx
+        .update(materialCategoriesTable)
+        .set({ categoryId: newCategoryId })
+        .where(eq(materialCategoriesTable.categoryId, oldCategoryId));
+
+      return oldCategory;
+    });
+
+    res.send(updatedCategory);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error in replace one category by existing");
+  }
+}
+
+// Replace one category by new
+async function replaceOneCategoryByNew(
   req: Request<unknown, {}, unknown>,
   res: Response
 ): Promise<void> {
@@ -157,43 +206,12 @@ async function replaceOneCategory(
     }
 
     const body = req.body;
-    const parsedBody = replaceOneCategorySchema.parse(body);
-    const { type } = parsedBody;
-
-    if (type === "byId") {
-      const { successorCategoryId } = parsedBody;
-      const updatedCategory = await db.transaction(async (tx) => {
-        const resultOldCategory = await tx
-          .update(categoryTable)
-          .set({ successorCategoryId })
-          .where(eq(categoryTable.id, id))
-          .returning();
-
-        const oldCategory = resultOldCategory[0];
-
-        await tx
-          .update(categoryTable)
-          .set({ predecessorCategoryId: id })
-          .where(eq(categoryTable.id, successorCategoryId));
-
-        await tx
-          .update(materialCategoriesTable)
-          .set({ categoryId: successorCategoryId })
-          .where(eq(materialCategoriesTable.categoryId, id));
-
-        return oldCategory;
-      });
-
-      res.send(updatedCategory);
-      return;
-    }
-
-    const { successorCategory } = parsedBody;
+    const parsedBody = categoryInsertSchema.parse(body);
 
     const updatedCategory = await db.transaction(async (tx) => {
       const resultNewCategory = await tx
         .insert(categoryTable)
-        .values({ ...successorCategory, predecessorCategoryId: id })
+        .values({ ...parsedBody, predecessorCategoryId: id })
         .returning();
 
       const newCategory = resultNewCategory[0];
@@ -218,7 +236,7 @@ async function replaceOneCategory(
     res.send(updatedCategory);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error in replace one category");
+    res.status(500).send("Error in replace one category by new");
   }
 }
 
@@ -228,5 +246,6 @@ export const categoryRoutes = {
   getOneCategory,
   updateOneCategory,
   deleteOneCategory,
-  replaceOneCategory,
+  replaceOneCategoryByExisting,
+  replaceOneCategoryByNew,
 } as const;
