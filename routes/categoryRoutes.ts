@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { ZodError } from "zod";
 import { db, categoryTable, materialCategoriesTable } from "../drizzle";
 import {
@@ -148,12 +148,25 @@ async function replaceOneCategoryByExisting(
     const parsedParams = replaceCategoryByExistingSchema.parse(params);
     const { oldCategoryId, newCategoryId } = parsedParams;
 
-    const foundCategories = await db.query.categoryTable.findMany({
-      where: inArray(categoryTable.id, [oldCategoryId, newCategoryId]),
+    const foundOldCategory = await db.query.categoryTable.findFirst({
+      where: eq(categoryTable.id, oldCategoryId),
     });
 
-    if (foundCategories.length < 2) {
-      res.status(404).send("Some category with provided id is not found");
+    if (!foundOldCategory) {
+      res
+        .status(404)
+        .send(`Old category with provided id ${oldCategoryId} is not found`);
+      return;
+    }
+
+    const foundNewCategory = await db.query.categoryTable.findFirst({
+      where: eq(categoryTable.id, newCategoryId),
+    });
+
+    if (!foundNewCategory) {
+      res
+        .status(404)
+        .send(`New category with provided id ${newCategoryId} is not found`);
       return;
     }
 
