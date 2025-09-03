@@ -99,7 +99,11 @@ const materialInsertSchema = createInsertSchema(materialTable)
   })
   .omit({ id: true, createdAt: true, updatedAt: true });
 
-export const materialUpdateSchema = createUpdateSchema(materialTable);
+const materialUpdateSchema = createUpdateSchema(materialTable)
+  .extend({
+    url: z.url().nonempty(),
+  })
+  .omit({ id: true, createdAt: true, updatedAt: true });
 
 export const recommendedMaterialDefSchema = materialInsertSchema.extend({
   categoryIds: z.uuid().array(),
