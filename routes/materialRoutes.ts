@@ -115,40 +115,45 @@ async function getAllMaterialsByCategory(
     const parsedParams = queryParamsIdSchema.parse(params);
     const { id } = parsedParams;
 
-    const materials = await db.query.materialTable.findMany({
-      where: (material, { exists }) => {
-        return exists(
-          db
-            .select()
-            .from(materialCategoriesTable)
-            .where(
-              and(
-                eq(materialCategoriesTable.materialId, material.id),
-                eq(materialCategoriesTable.categoryId, id)
-              )
-            )
-        );
-      },
-      with: {
-        materialCategories: {
-          columns: { materialId: false, categoryId: false },
-          with: { category: { columns: { name: true } } },
+    const materialCategoriesByCategory =
+      await db.query.materialCategoriesTable.findMany({
+        where: eq(materialCategoriesTable.categoryId, id),
+        with: {
+          material: {
+            columns: { id: true, url: true, type: true },
+            with: {
+              materialCategories: {
+                with: {
+                  category: {
+                    columns: { id: true, name: true, description: true },
+                  },
+                },
+              },
+            },
+          },
         },
-      },
-    });
+      });
 
-    const formattedMaterials = materials.map(
-      ({ materialCategories, ...material }) => {
+    const materialsByCategory = materialCategoriesByCategory.map(
+      (materialCategory) => {
         return {
-          ...material,
-          categories: materialCategories.map((materialCategory) => {
-            return materialCategory.category.name;
-          }),
+          id: materialCategory.material.id,
+          url: materialCategory.material.url,
+          type: materialCategory.material.type,
+          categories: materialCategory.material.materialCategories.map(
+            (category) => {
+              return {
+                id: category.category.id,
+                name: category.category.name,
+                description: category.category.description,
+              };
+            }
+          ),
         };
       }
     );
 
-    res.send(formattedMaterials);
+    res.send(materialsByCategory);
   } catch (error) {
     console.log(error);
     res.status(500).send("Error in get one material by category");
