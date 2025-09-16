@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db, userTable } from "../drizzle";
 import {
   queryParamsIdSchema,
-  userInsertSchema,
+  createUserRequestSchema,
   userUpdateSchema,
 } from "../validation";
 
@@ -16,7 +16,7 @@ async function createOneUser(
 ): Promise<void> {
   try {
     const body = req.body;
-    const parsedBody = userInsertSchema.parse(body);
+    const parsedBody = createUserRequestSchema.parse(body);
 
     const fetchedUser = await db.query.userTable.findFirst({
       where: eq(userTable.email, parsedBody.email),
@@ -48,7 +48,7 @@ async function createOneUserReferred(
     const { id } = parsedParams;
 
     const body = req.body;
-    const parsedBody = userInsertSchema.parse(body);
+    const parsedBody = createUserRequestSchema.parse(body);
 
     const result = await db
       .insert(userTable)

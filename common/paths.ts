@@ -10,6 +10,7 @@ export const paths = {
     base: "/categories",
     id: "/categories/:id",
     replace: "/categories/:id/replace",
+    replaceById: "/categories/:oldCategoryId/replace/:newCategoryId",
   },
   materials: {
     base: "/materials",

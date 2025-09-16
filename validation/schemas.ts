@@ -22,39 +22,82 @@ export const envSchema = z.object({
 export const queryParamsIdSchema = z.object({ id: z.uuid() });
 
 // Users
-export const userInsertSchema = createInsertSchema(userTable);
-export const userUpdateSchema = createUpdateSchema(userTable);
+const userInsertSchema = createInsertSchema(userTable).extend({
+  email: z.email().nonempty(),
+});
+
+export const createUserRequestSchema = userInsertSchema.omit({
+  id: true,
+  invitedByUserId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const userUpdateSchema = createUpdateSchema(userTable)
+  .extend({
+    email: z.email().nonempty(),
+  })
+  .omit({ id: true, invitedByUserId: true, createdAt: true, updatedAt: true });
 
 // Mentees
-export const menteeInsertSchema = createInsertSchema(menteeTable);
-export const menteeUpdateSchema = createUpdateSchema(menteeTable);
+export const menteeInsertSchema = createInsertSchema(menteeTable)
+  .extend({
+    firstName: z.string().nonempty(),
+    lastName: z.string().nonempty(),
+    userId: z.uuid().nonempty(),
+  })
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export const menteeUpdateSchema = createUpdateSchema(menteeTable)
+  .extend({
+    firstName: z.string().nonempty().optional(),
+    lastName: z.string().nonempty().optional(),
+  })
+  .omit({ id: true, userId: true, createdAt: true, updatedAt: true });
 
 // Categories
-export const categoryInsertSchema = createInsertSchema(categoryTable);
+export const categoryInsertSchema = createInsertSchema(categoryTable)
+  .extend({
+    name: z.string().nonempty(),
+    description: z.string().nonempty(),
+  })
+  .omit({
+    id: true,
+    successorCategoryId: true,
+    createdAt: true,
+    updatedAt: true,
+  });
 
-export const categoryUpdateSchema = createUpdateSchema(categoryTable).omit({
-  successorCategoryId: true,
-  predecessorCategoryId: true,
+export const categoryUpdateSchema = createUpdateSchema(categoryTable)
+  .extend({
+    name: z.string().nonempty().optional(),
+    description: z.string().nonempty().optional(),
+  })
+  .omit({
+    id: true,
+    predecessorCategoryId: true,
+    successorCategoryId: true,
+    createdAt: true,
+    updatedAt: true,
+  });
+
+export const replaceCategoryByExistingSchema = z.object({
+  oldCategoryId: z.uuid().nonempty(),
+  newCategoryId: z.uuid().nonempty(),
 });
-
-const withSuccessorCategoryId = z.object({
-  type: z.literal("byId"),
-  successorCategoryId: z.uuid().nonempty(),
-});
-
-const withSuccessorCategory = z.object({
-  type: z.literal("byModel"),
-  successorCategory: categoryInsertSchema,
-});
-
-export const replaceOneCategorySchema = z.union([
-  withSuccessorCategoryId,
-  withSuccessorCategory,
-]);
 
 // Materials
-export const materialInsertSchema = createInsertSchema(materialTable);
-export const materialUpdateSchema = createUpdateSchema(materialTable);
+const materialInsertSchema = createInsertSchema(materialTable)
+  .extend({
+    url: z.url().nonempty(),
+  })
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+const materialUpdateSchema = createUpdateSchema(materialTable)
+  .extend({
+    url: z.url().nonempty(),
+  })
+  .omit({ id: true, createdAt: true, updatedAt: true });
 
 export const recommendedMaterialDefSchema = materialInsertSchema.extend({
   categoryIds: z.uuid().array(),
